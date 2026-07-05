@@ -378,9 +378,6 @@
 
         function loadArticleList(){
             var q=supabase.from('articles').select('*').order('pinned',{ascending:false}).order('created_at',{ascending:false});
-            if((hasRole('author')||hasRole('recruitment_admin')||hasRole('logistics_admin'))&&!hasRole('super_admin','president','admin_secretary','vice_president')){
-                q=q.eq('author_id',currentUser.id);
-            }
             q.then(function(r){
                 var tb=document.getElementById('articlesTbody');if(!tb)return;
                 var data=r.data||[];
@@ -488,8 +485,8 @@
         // 2. 报名审核
         // ==========================================
         function buildRecruitment(container){
-            if(!hasRole('super_admin','president','admin_secretary','vice_president','recruitment_admin')){
-                noPerm(container,'只有社长、行政秘书、副社长和策划部成员可以审核报名。');return;
+            if(!hasRole('super_admin','president','admin_secretary','vice_president')){
+                noPerm(container,'只有社长、行政秘书、副社长可以审核报名。');return;
             }
             var html='<div class="card"><div class="card-header"><span>招新报名记录</span>';
             html+='<div class="toolbar" style="margin-bottom:0;">';
