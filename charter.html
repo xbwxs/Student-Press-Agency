@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社团章程 - 岳阳县二中学生记者社</title>
+    <style>
+        :root {
+            --blue-900:#142D52;--blue-700:#1E4D8C;--blue-500:#2B6CB0;--blue-50:#EDF4FB;
+            --coral-500:#E2584A;
+            --gray-900:#1A1A1A;--gray-700:#4A4A4A;--gray-500:#888;--gray-100:#F0EFED;--gray-50:#FAF8F5;
+            --color-bg:var(--gray-50);--color-surface:#fff;--color-text:var(--gray-900);
+            --color-text-soft:var(--gray-700);--color-border:var(--gray-100);
+            --text-xs:.75rem;--text-sm:.875rem;--text-base:1rem;--text-lg:1.125rem;
+            --text-xl:1.25rem;--text-2xl:1.5rem;--text-3xl:2rem;
+            --space-sm:8px;--space-md:16px;--space-lg:24px;--space-xl:32px;--space-2xl:48px;--space-3xl:64px;
+            --radius-md:10px;--radius-lg:16px;--radius-full:9999px;
+            --shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.06);
+            --duration:.3s;--nav-height:64px;--max-width:900px;
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth;font-size:16px}
+        body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,sans-serif;color:var(--color-text);background:var(--color-bg);line-height:1.85;-webkit-font-smoothing:antialiased}
+        a{color:inherit;text-decoration:none}ul{list-style:none}button{font-family:inherit;cursor:pointer}
+        .container{max-width:var(--max-width);margin:0 auto;padding:0 var(--space-lg)}
+        .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-height);background:rgba(15,35,71,.95)}
+        .nav-container{max-width:1200px;margin:0 auto;padding:0 var(--space-lg);height:100%;display:flex;align-items:center;justify-content:space-between}
+        .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:var(--text-base);color:#fff}
+        .logo-mark{width:36px;height:36px;border-radius:var(--radius-md);flex-shrink:0;overflow:hidden}
+        .logo-mark img{width:100%;height:100%;object-fit:cover;display:block}
+        .nav-menu{display:flex;align-items:center;gap:2px}
+        .nav-link{padding:8px 14px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:500;color:rgba(255,255,255,.85);transition:all .15s}
+        .nav-link:hover{color:#fff;background:rgba(255,255,255,.12)}
+        .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;padding:8px 18px;font-weight:600;margin-left:6px}
+        .nav-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:8px;cursor:pointer;z-index:1001}
+        .nav-toggle span{display:block;width:24px;height:2.5px;background:#fff;border-radius:2px}
+        .nav-toggle.active span:nth-child(1){transform:translateY(7px)rotate(45deg)}
+        .nav-toggle.active span:nth-child(2){opacity:0}
+        .nav-toggle.active span:nth-child(3){transform:translateY(-7px)rotate(-45deg)}
+        .page-header{padding:140px 0 56px;background:linear-gradient(160deg,#0F2347,#1E4D8C);color:#fff;text-align:center;position:relative;overflow:hidden}
+        .page-header::before{content:'';position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(240,160,75,.18),transparent 70%);top:-70px;right:-70px;animation:floatOrb1 12s ease-in-out infinite;z-index:0}
+        .page-header::after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(226,88,74,.12),transparent 70%);bottom:-50px;left:-50px;animation:floatOrb2 14s ease-in-out infinite reverse;z-index:0}
+        @keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(35px,-25px) scale(1.15)}66%{transform:translate(-20px,20px) scale(.9)}}
+        @keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-30px,20px) scale(1.1)}66%{transform:translate(25px,-15px) scale(.85)}}
+        .page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:var(--space-sm);position:relative;z-index:1;animation:fadeInDown .6s var(--ease-out) both}
+        .page-header p{font-size:var(--text-lg);opacity:0;position:relative;z-index:1;animation:fadeInUp .6s .15s var(--ease-out) forwards}
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .content-section{max-width:var(--max-width);margin:0 auto;padding:var(--space-3xl) var(--space-lg)}
+        .content-section h2{font-size:var(--text-2xl);font-weight:700;color:var(--blue-900);margin:var(--space-2xl) 0 var(--space-md);padding-bottom:var(--space-sm);border-bottom:2px solid var(--blue-50)}
+        .content-section h2:first-child{margin-top:0}
+        .content-section h3{font-size:var(--text-lg);font-weight:700;color:var(--blue-700);margin:var(--space-lg) 0 var(--space-sm)}
+        .content-section p{margin-bottom:var(--space-md);color:var(--text-soft)}
+        .content-section ul{margin-bottom:var(--space-md);padding-left:var(--space-lg)}
+        .content-section li{margin-bottom:6px;color:var(--text-soft);font-size:var(--text-sm);position:relative;padding-left:8px}
+        .content-section li::before{content:'•';position:absolute;left:-12px;color:var(--blue-500)}
+        .content-section strong{color:var(--gray-900)}
+        .highlight-box{background:var(--blue-50);border-radius:var(--radius-lg);padding:var(--space-xl);margin:var(--space-lg) 0;border-left:4px solid var(--blue-500);text-align:center;font-weight:600;color:var(--blue-900)}
+        .back-link{display:inline-flex;align-items:center;gap:6px;margin-top:var(--space-xl);padding:10px 20px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;background:var(--blue-50);color:var(--blue-700);transition:all var(--duration)}
+        .back-link:hover{background:var(--blue-500);color:#fff}
+        .footer{background:var(--blue-900);color:rgba(255,255,255,.7);padding:var(--space-3xl) 0 var(--space-lg);text-align:center}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:var(--space-lg);font-size:var(--text-xs);color:rgba(255,255,255,.35)}
+        @media(max-width:768px){
+            .nav-toggle{display:flex}
+            .nav-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);flex-direction:column;align-items:center;justify-content:center;gap:var(--space-md);z-index:1000;padding:var(--space-xl)}
+            .nav-menu.active{display:flex}
+            .nav-menu .nav-link{font-size:var(--text-lg);color:var(--gray-700)!important;padding:12px 24px}
+            .nav-menu .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;margin-left:0}
+            .page-header h1{font-size:2rem}
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-mark"><img src="https://s41.ax1x.com/2026/07/05/pm0HYZV.png" alt="记者社"></div>
+                <span>岳阳县二中学生记者社</span>
+            </a>
+            <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="news.html" class="nav-link">校园新闻</a></li>
+                <li><a href="recruitment.html" class="nav-link nav-cta">🔥 加入我们</a></li>
+                <li><a href="about.html" class="nav-link">关于记者社</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="page-header"><h1>📜 社团章程</h1><p>岳阳县二中学生记者社</p></div>
+    <div class="content-section">
+        <h2>第一章 总则</h2>
+        <p><strong>第一条</strong> 社团名称：岳阳县第二中学学生记者社（以下简称"记者社"）。</p>
+        <p><strong>第二条</strong> 社团性质：本社是在学校办公室指导下，由热爱新闻、写作、摄影、宣传工作的在校学生自愿组成的非营利性校园文化社团。</p>
+        <p><strong>第三条</strong> 社团宗旨：秉持"真实记录、客观传播、服务校园、锻炼自我"的理念，聚焦校园生活、传播校园正能量、搭建师生沟通桥梁，提升社员的新闻素养与综合能力。</p>
+        <p><strong>第四条</strong> 活动准则：严格遵守国家法律法规、学校规章制度，服从学校管理，活动开展需提前报备并获得批准。</p>
+        <h2>第二章 组织机构</h2>
+        <p><strong>第五条</strong> 指导老师：由学校聘请具有相关专业能力或管理经验的教师担任，负责社团活动指导、业务培训及思想引导。</p>
+        <p><strong>第六条</strong> 核心管理层：</p>
+        <ul>
+            <li><strong>社长 1名：</strong>统筹社团全面工作，协调各部门分工，对接学校相关部门；</li>
+            <li><strong>行政秘书 2名：</strong>协助社长工作；</li>
+            <li><strong>副社长 5名：</strong>协助社长工作，分别分管活动策划、社员管理等模块，社长缺位时履行社长职责；</li>
+            <li><strong>部门设置：</strong>采访部、剪辑部、摄影部、策划部、后勤部、财务部。</li>
+        </ul>
+        <p><strong>第七条</strong> 换届选举：管理层每学年换届一次，在学年末召开社员大会进行民主选举。候选人需具备良好品德、较强责任心及相关业务能力，经社员推荐或自我推荐产生。选举结果报学校办公室备案后生效，任期一年，可连选连任（不超过两届）。</p>
+        <h2>第三章 社员管理</h2>
+        <p><strong>第八条</strong> 入社条件：</p>
+        <ul>
+            <li>岳阳县第二中学在校注册学生；</li>
+            <li>热爱新闻宣传工作，具备一定的写作、摄影、沟通等基础能力（零基础者需有学习热情）；</li>
+            <li>遵守社团章程，服从管理，积极参与社团活动；</li>
+            <li>无违反校规校纪记录。</li>
+        </ul>
+        <p><strong>第九条</strong> 入社程序：社团公开招募期间，提交书面入社申请；通过面试（含基础能力测试或交流沟通）；试用期1个月，试用合格后正式成为社员，录入社员档案。</p>
+        <p><strong>第十条</strong> 退社程序：正式社员退社需提前15天提交书面申请，说明理由；管理层审核通过后，办理退社手续，注销社员档案；无故缺席活动累计3次以上、严重违反社团纪律或校规校纪者，视为自动退社或被劝退。</p>
+        <h2>第四章 活动开展</h2>
+        <p><strong>第十一条</strong> 活动内容：业务培训（新闻写作、采访技巧、摄影摄像、排版编辑等）；实践活动（校园新闻采访、校园事件报道、人物专访、校园刊物编辑发行、新媒体内容创作、校园宣传活动策划等）；交流活动（与其他学校学生记者社交流、邀请媒体从业者讲座、优秀作品评选等）。</p>
+        <p><strong>第十二条</strong> 活动要求：活动策划需提前提交方案至指导老师及学校相关部门，获批后实施；活动过程需做好安全保障、考勤记录、素材留存；活动结束后及时总结，形成书面报告备案。</p>
+        <h2>第五章 经费管理</h2>
+        <p><strong>第十三条</strong> 经费来源：学校专项活动经费拨款；合法合规的社会赞助（需经学校批准）；其他合法收入（如优秀作品稿费等）；社员缴纳社费。</p>
+        <p><strong>第十四条</strong> 经费使用：经费实行专款专用，用于社团活动开展、培训材料、器材购置、奖品发放等；设立经费账目，由专人负责管理，支出需有票据凭证，定期向社员公示；经费使用接受指导老师及全体社员监督，严禁挪用、侵占。</p>
+        <h2>第六章 附则</h2>
+        <p><strong>第十五条</strong> 本章程经社员大会表决通过，并报学校办公室备案后生效。</p>
+        <p><strong>第十六条</strong> 本章程的修改需经社员大会三分之二以上社员同意，并报指导老师及学校相关部门批准。</p>
+        <p><strong>第十七条</strong> 本章程最终解释权归岳阳县第二中学学生记者社所有。</p>
+        <div class="highlight-box"><p style="margin:0;">岳阳县第二中学学生记者社</p></div>
+        <div style="text-align:center;"><a href="obligations.html" class="back-link">📋 社员义务与纪律 →</a></div>
+    </div>
+    <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 岳阳县二中学生记者社</p></div></div></footer>
+    <script>
+        var navToggle=document.getElementById('navToggle'),navMenu=document.getElementById('navMenu');
+        navToggle.addEventListener('click',function(){navToggle.classList.toggle('active');navMenu.classList.toggle('active')});
+        navMenu.querySelectorAll('.nav-link').forEach(function(l){l.addEventListener('click',function(){navMenu.classList.remove('active');navToggle.classList.remove('active')})});
+    </script>
+</body>
+</html>
