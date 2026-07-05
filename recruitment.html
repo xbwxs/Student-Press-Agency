@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>招新报名 - 岳阳县二中学生记者社</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --blue-900:#142D52;--blue-700:#1E4D8C;--blue-500:#2B6CB0;--blue-50:#EDF4FB;
+            --gold-500:#F0A04B;--gold-100:#FEF5EB;
+            --coral-500:#E2584A;--coral-400:#EC7A6F;
+            --gray-900:#1A1A1A;--gray-700:#4A4A4A;--gray-500:#888;--gray-100:#F0EFED;--gray-50:#FAF8F5;
+            --color-bg:var(--gray-50);--color-surface:#fff;--color-text:var(--gray-900);
+            --color-text-soft:var(--gray-700);--color-text-muted:var(--gray-500);--color-border:var(--gray-100);
+            --text-xs:.75rem;--text-sm:.875rem;--text-base:1rem;--text-lg:1.125rem;
+            --text-xl:1.25rem;--text-2xl:1.5rem;--text-3xl:2rem;--text-4xl:2.5rem;
+            --space-sm:8px;--space-md:16px;--space-lg:24px;--space-xl:32px;--space-2xl:48px;--space-3xl:64px;--space-4xl:96px;
+            --radius-md:10px;--radius-lg:16px;--radius-xl:24px;--radius-full:9999px;
+            --shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.06);
+            --shadow-lg:0 12px 32px rgba(0,0,0,.08);--shadow-xl:0 20px 48px rgba(0,0,0,.12);
+            --ease-out:cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);
+            --duration:.3s;--nav-height:64px;--max-width:1200px;
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth;font-size:16px}
+        body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,sans-serif;color:var(--color-text);background:var(--color-bg);line-height:1.75;-webkit-font-smoothing:antialiased}
+        a{color:inherit;text-decoration:none}ul{list-style:none}button{font-family:inherit;cursor:pointer}
+        .container{max-width:var(--max-width);margin:0 auto;padding:0 var(--space-lg)}
+        .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-height);background:rgba(15,35,71,.95)}
+        .nav-container{max-width:var(--max-width);margin:0 auto;padding:0 var(--space-lg);height:100%;display:flex;align-items:center;justify-content:space-between}
+        .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:var(--text-base);color:#fff}
+        .logo-mark{width:36px;height:36px;border-radius:var(--radius-md);flex-shrink:0;overflow:hidden}
+        .logo-mark img{width:100%;height:100%;object-fit:cover;display:block}
+        .nav-menu{display:flex;align-items:center;gap:2px}
+        .nav-link{padding:8px 14px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:500;color:rgba(255,255,255,.85);transition:all .15s}
+        .nav-link:hover{color:#fff;background:rgba(255,255,255,.12)}
+        .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;padding:8px 18px;font-weight:600;margin-left:6px}
+        .nav-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:8px;cursor:pointer;z-index:1001}
+        .nav-toggle span{display:block;width:24px;height:2.5px;background:#fff;border-radius:2px;transition:all var(--duration)}
+        .nav-toggle.active span:nth-child(1){transform:translateY(7px)rotate(45deg)}
+        .nav-toggle.active span:nth-child(2){opacity:0}
+        .nav-toggle.active span:nth-child(3){transform:translateY(-7px)rotate(-45deg)}
+        .page-header{padding:140px 0 56px;background:linear-gradient(160deg,#0F2347,#1E4D8C);color:#fff;text-align:center;position:relative;overflow:hidden}
+        .page-header::before{content:'';position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(240,160,75,.18),transparent 70%);top:-70px;right:-70px;animation:floatOrb1 12s ease-in-out infinite;z-index:0}
+        .page-header::after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(226,88,74,.12),transparent 70%);bottom:-50px;left:-50px;animation:floatOrb2 14s ease-in-out infinite reverse;z-index:0}
+        @keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(35px,-25px) scale(1.15)}66%{transform:translate(-20px,20px) scale(.9)}}
+        @keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-30px,20px) scale(1.1)}66%{transform:translate(25px,-15px) scale(.85)}}
+        .page-header h1{font-size:var(--text-4xl);font-weight:800;margin-bottom:var(--space-sm);position:relative;z-index:1;animation:fadeInDown .6s var(--ease-out) both}
+        .page-header p{font-size:var(--text-lg);opacity:0;position:relative;z-index:1;animation:fadeInUp .6s .15s var(--ease-out) forwards}
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .recruitment-section{max-width:720px;margin:var(--space-3xl) auto;padding:0 var(--space-lg)}
+        .info-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-xl);margin-bottom:var(--space-lg);box-shadow:var(--shadow-sm);animation:slideUp .5s .2s var(--ease-out) both}
+        .info-card h3{font-size:var(--text-xl);color:var(--blue-900);margin-bottom:var(--space-sm);display:flex;align-items:center;gap:8px}
+        .info-card ul{margin-top:var(--space-md);padding-left:var(--space-lg)}
+        .info-card li{margin-bottom:6px;color:var(--text-soft);font-size:var(--text-sm);position:relative;padding-left:4px}
+        .info-card li strong{color:var(--gray-900)}
+        .warning-box{background:#FFF7ED;border:1px solid rgba(234,88,12,.2);border-radius:var(--radius-md);padding:var(--space-md);margin-top:var(--space-md);font-size:var(--text-sm);color:#9A3412;display:flex;align-items:flex-start;gap:8px}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-md);margin-bottom:var(--space-xl)}
+        .dept-card{background:var(--color-surface);border:2px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-lg) var(--space-md);text-align:center;cursor:pointer;transition:all var(--duration) var(--ease-out);animation:slideUp .5s var(--ease-out) both}
+        .dept-card:nth-child(1){animation-delay:.25s}.dept-card:nth-child(2){animation-delay:.3s}.dept-card:nth-child(3){animation-delay:.35s}
+        .dept-card:nth-child(4){animation-delay:.4s}.dept-card:nth-child(5){animation-delay:.45s}.dept-card:nth-child(6){animation-delay:.5s}
+        .dept-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:var(--blue-500)}
+        .dept-card.selected{border-color:var(--blue-500);background:var(--blue-50);box-shadow:0 0 0 4px rgba(43,108,176,.12);transform:scale(1.03)}
+        .dept-card .dept-icon{font-size:2rem;margin-bottom:var(--space-sm);transition:transform var(--duration) var(--ease-spring)}
+        .dept-card:hover .dept-icon{transform:scale(1.2)}
+        .dept-card h4{font-size:var(--text-sm);font-weight:700;margin-bottom:4px;color:var(--gray-900)}
+        .dept-card p{font-size:var(--text-xs);color:var(--text-muted);line-height:1.4}
+        .form-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-xl);box-shadow:var(--shadow-sm);animation:slideUp .5s .55s var(--ease-out) both}
+        .form-card h3{font-size:var(--text-xl);margin-bottom:var(--space-lg);display:flex;align-items:center;gap:8px}
+        .form-group{margin-bottom:var(--space-lg)}
+        .form-group label{display:block;font-weight:600;font-size:var(--text-sm);margin-bottom:6px;color:var(--gray-900)}
+        .form-group label .required{color:var(--coral-500)}
+        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);font-family:inherit;background:var(--gray-50);color:var(--color-text);transition:all .15s var(--ease-out);resize:vertical}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--blue-500);background:#fff;box-shadow:0 0 0 4px rgba(43,108,176,.1)}
+        .form-group textarea{min-height:120px}
+       text-rowgapdisplay:flex-start;gap:10px;font-size:var(--text-sm);color:var(--text-soft);margin-bottom:var(--space-lg)}
+        .checkbox-group input[type=checkbox]{width:18px;height:18px;margin-top:3px;flex-shrink:0;accent-color:var(--blue-700)}
+        .checkbox-group a{color:var(--blue-700);text-decoration:underline}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;transition:all var(--duration) var(--ease-out);border:none;cursor:pointer;white-space:nowrap}
+        .btn-primary{background:var(--coral-500);color:#fff;box-shadow:0 2px 12px rgba(226,88,74,.3)}
+        .btn-primary:hover{background:#D14A3E;transform:translateY(-2px);box-shadow:0 6px 24px rgba(226,88,74,.4)}
+        .btn-full{width:100%;padding:16px;font-size:var(--text-base);font-weight:700}
+        .btn-full:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center}
+        .modal-overlay.show{display:flex}
+        .modal-card{background:#fff;border-radius:var(--radius-xl);padding:var(--space-2xl) var(--space-xl);text-align:center;max-width:420px;width:90%;box-shadow:var(--shadow-xl);animation:modalPop .4s var(--ease-spring)}
+        @keyframes modalPop{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .modal-card .success-icon{width:64px;height:64px;margin:0 auto var(--space-md);background:#D1FAE5;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;animation:bounceIn .6s .2s var(--ease-spring) both}
+        @keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+        .modal-card h3{font-size:var(--text-xl);color:#059669;margin-bottom:var(--space-sm)}
+        .modal-card p{color:var(--text-soft);margin-bottom:var(--space-lg);font-size:var(--text-sm)}
+        .toast{position:fixed;top:24px;right:24px;z-index:99999;padding:14px 24px;border-radius:var(--radius-md);color:#fff;font-weight:600;font-size:var(--text-sm);box-shadow:var(--shadow-lg);animation:toastIn .35s var(--ease-spring)}
+        .toast.success{background:#059669}.toast.error{background:#DC2626}
+        @keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+        .footer{background:var(--blue-900);color:rgba(255,255,255,.7);padding:var(--space-3xl) 0 var(--space-lg);text-align:center}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:var(--space-lg);font-size:var(--text-xs);color:rgba(255,255,255,.35)}
+        .closed-box{text-align:center;padding:60px 20px}
+        .closed-box .icon{font-size:4rem;margin-bottom:16px;animation:bounceIn .6s var(--ease-spring) both}
+        .closed-box h2{font-size:1.5rem;color:var(--gray-900);margin-bottom:8px}
+        .closed-box p{color:varmargin-bottom:24px}
+        .closed-box a{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border-radius:999px;font-size:.875rem;font-weight:600;background:var(--blue-50);color:var(--blue-700)}
+        @media(max-width:768px){
+            :root{--text-4xl:2rem}
+            .nav-toggle{display:flex}
+            .nav-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);flex-direction:column;align-items:center;justify-content:center;gap:var(--space-md);z-index:1000;padding:var(--space-xl)}
+            .nav-menu.active{display:flex}
+            .nav-menu .nav-link{font-size:var(--text-lg);color:var(--gray-700)!important;padding:12px 24px}
+            .nav-menu .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;margin-left:0}
+            .dept-grid{grid-template-columns:repeat(2,1fr)}
+            .form-row{grid-template-columns:1fr}
+        }
+        @media(max-width:480px){.dept-grid{grid-template-columns:1fr 1fr}}
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-mark"><img src="https://s41.ax1x.com/2026/07/05/pm0HYZV.png" alt="记者社"></div>
+                <span>岳阳县二中学生记者社</span>
+            </a>
+            <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="news.html" class="nav-link">校园新闻</a></li>
+                <li><a href="recruitment.html" class="nav-link nav-cta">🔥 加入我们</a></li>
+                <li><a href="about.html" class="nav-link">关于记者社</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="page-header"><h1>🔥 加入记者社</h1><p>2026年秋季招新 · 六大部门虚位以待</p></div>
+    <div class="recruitment-section" id="recruitmentContent">
+        <div class="info-card">
+            <h3>📋 入社条件</h3>
+            <ul>
+                <li><strong>对象：</strong>岳阳县第二中学在校注册学生（高一、高二年级）</li>
+                <li><strong>热爱：</strong>对新闻宣传工作有热情，具备写作、摄影、沟通等基础能力或学习意愿</li>
+                <li><strong>纪律：</strong>遵守社团章程，服从管理，无违反校规校纪记录</li>
+                <li><strong>试用期：</strong>入社后<strong>试用期1个月</strong>，试用合格后正式成为社员并录入档案</li>
+                <li><strong>报名截止：</strong>2026年9月30日 · 面试时间另行通知</li>
+            </ul>
+            <div class="warning-box"><span style="font-size:1.2rem;">⚠️</span><span>报名前请先阅读<a href="obligations.html" style="color:#9A3412;font-weight:700;text-decoration:underline;">社员义务与纪律</a>，确认你已了解并愿意遵守相关规定。</span></div>
+        </div>
+        <h3 style="font-size:var(--text-xl);margin-bottom:var(--space-md);">🎯 选择你心仪的部门（6选1）</h3>
+        <div class="dept-grid" id="deptGrid">
+            <div class="dept-card" data-dept="采访部"><div class="dept-icon">📝</div><h4>采访部</h4><p>新闻采访、稿件撰写、素材收集</p></div>
+            <div class="dept-card" data-dept="摄影部"><div class="dept-icon">📸</div><h4>摄影部</h4><p>活动宣传、新媒体运营、摄影摄像</p></div>
+            <div class="dept-card" data-dept="剪辑部"><div class="dept-icon">✂️</div><h4>剪辑部</h4><p>稿件审核、修改排版、内容编辑</p></div>
+            <div class="dept-card" data-dept="策划部"><div class="dept-icon">💡</div><h4>策划部</h4><p>社员招募、考勤档案、活动策划</p></div>
+            <div class="dept-card" data-dept="后勤部"><div class="dept-icon">🔧</div><h4>后勤部</h4><p>社团后勤保障与物资管理</p></div>
+            <div class="dept-card" data-dept="财务部"><div class="dept-icon">💰</div><h4>财务部</h4><p>社团经费管理与财务公示</p></div>
+        </div>
+        <div class="form-card">
+            <h3>✍️ 在线报名</h3>
+            <form id="recruitmentForm">
+                <input type="hidden" id="department" value="">
+                <div class="form-row">
+                    <div class="form-group"><label for="name">姓名 <span class="required">*</span></label><input type="text" id="name" placeholder="请输入你的姓名" required></div>
+                    <div class="form-group"><label for="class_name">班级 <span class="required">*</span></label><input type="text" id="class_name" placeholder="如：高一(3)班" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="phone">手机号码 <span class="required">*</span></label><input type="tel" id="phone" placeholder="请输入11位手机号码" required></div>
+                    <div class="form-group"><label for="email">QQ邮箱</label><input type="email" id="email" placeholder="选填"></div>
+                </div>
+                <div class="form-group"><label for="skills">个人特长</label><input type="text" id="skills" placeholder="如：擅长写作 / 会摄影 / 会PS / 会剪视频 / 有组织活动经验等"><p class="form-hint">零基础也欢迎报名</p></div>
+                <div class="form-group"><label for="reason">加入理由 <span class="required">*</span></label><textarea id="reason" placeholder="请简要说明你为什么想加入记者社（100字左右）" required></textarea></div>
+                <div class="checkbox-group"><input type="checkbox" id="agreeCharter" required><label for="agreeCharter">我已阅读并同意遵守<a href="charter.html" target="_blank">《社团章程》</a>、<a href="obligations.html" target="_blank">《社员义务与纪律》</a>及<a href="rewards.html" target="_blank">《奖惩制度》</a><span class="required">*</span></label></div>
+                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">🚀 提交报名</button>
+            </form>
+        </div>
+    </div>
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-card"><div class="success-icon">🎉</div><h3>报名成功！</h3><p>你的报名信息已提交。通过初选后将收到面试通知，面试通过后进入<strong>1个月试用期</strong>，试用合格正式入社。</p><p style="font-size:var(--text-xs);color:var(--text-muted);">如有疑问请联系记者社管理层</p><button class="btn btn-primary" onclick="closeModal()">知道了</button></div>
+    </div>
+    <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 岳阳县二中学生记者社</p></div></div></footer>
+    <script>
+        var supabase = window.supabase.createClient('https://dhwgxuvkwjqkwgetezun.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2d4dXZrd2pxa3dnZXRlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTU4NDksImV4cCI6MjA5ODc3MTg0OX0.xbeSSfXk6_mdKN-9B1B0MByiFrXIntcNDlJS1XAnlrs');
+        var navToggle=document.getElementById('navToggle'),navMenu=document.getElementById('navMenu');
+        navToggle.addEventListener('click',function(){navToggle.classList.toggle('active');navMenu.classList.toggle('active')});
+        navMenu.querySelectorAll('.nav-link').forEach(function(l){l.addEventListener('click',function(){navMenu.classList.remove('active');navToggle.classList.remove('active')})});
+        supabase.from('settings').select('value').eq('key','recruitment_open').single().then(function(r){
+            if(!r.error&&r.data&&r.data.value==='false'){document.getElementById('recruitmentContent').innerHTML='<div class="closed-box"><div class="icon">🔒</div><h2>报名通道已关闭</h2><p>本次招新报名已截止，请关注下一轮招新通知。</p><a href="index.html">← 返回首页</a></div>';return}
+            var deptInput=document.getElementById('department');
+            document.querySelectorAll('.dept-card').forEach(function(c){c.addEventListener('click',function(){document.querySelectorAll('.dept-card').forEach(function(x){x.classList.remove('selected')});c.classList.add('selected');deptInput.value=c.dataset.dept})});
+            var form=document.getElementById('recruitmentForm'),btn=document.getElementById('submitBtn'),orig=btn.textContent;
+            form.addEventListener('submit',function(e){
+                e.preventDefault();
+                var n=document.getElementById('name').value.trim(),c=document.getElementById('class_name').value.trim(),p=document.getElementById('phone').value.trim(),em=document.getElementById('email').value.trim(),d=deptInput.value,s=document.getElementById('skills').value.trim(),r=document.getElementById('reason').value.trim(),a=document.getElementById('agreeCharter').checked;
+                if(!n||!c||!p){showToast('请填写姓名、班级和手机号码','error');return}
+                if(!d){showToast('请选择一个意向部门','error');return}
+                if(!r){showToast('请填写加入理由','error');return}
+                if(!/^1[3-9]\d{9}$/.test(p)){showToast('请输入正确的11位手机号码','error');return}
+                if(!a){showToast('请阅读并同意社团章程、义务纪律和奖惩制度','error');return}
+                btn.disabled=true;btn.textContent='提交中...';
+                supabase.from('recruitment').insert([{name:n,class_name:c,phone:p,email:em||null,department:d,skills:s||null,reason:r,status:'pending'}]).then(function(res){
+                    if(res.error){showToast('提交失败：'+res.error.message,'error');btn.disabled=false;btn.textContent=orig;return}
+                    form.reset();document.querySelectorAll('.dept-card').forEach(function(x){x.classList.remove('selected')});deptInput.value='';document.getElementById('agreeCharter').checked=false;
+                    document.getElementById('successModal').classList.add('show');showToast('报名成功！🎉','success');btn.disabled=false;btn.textContent=orig;
+                }).catch(function(err){showToast('网络错误：'+err.message,'error');btn.disabled=false;btn.textContent=orig});
+            });
+        });
+        function closeModal(){document.getElementById('successModal').classList.remove('show')}
+        function showToast(m,t){var o=document.querySelector('.toast');if(o)o.remove();var d=document.createElement('div');d.className='toast '+(t||'success');d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.style.opacity='0';d.style.transition='opacity .3s';setTimeout(function(){d.remove()},300)},3000)}
+    </script>
+</body>
+</html>

@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>管理后台 - 岳阳县二中学生记者社</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #fff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --blue: #2563eb;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, .06);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            -webkit-appearance: none;
+            user-select: none;
+        }
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+            font-size: .9rem;
+        }
+
+        /* ===== 登录页 ===== */
+        .login-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a, #1e3a5f, #1e4d8c);
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 48px 36px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+        }
+        .login-card .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        .login-card h1 {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .login-card .sub {
+            text-align: center;
+            color: var(--muted);
+            font-size: .85rem;
+            margin-bottom: 28px;
+        }
+        .field {
+            margin-bottom: 16px;
+        }
+        .field label {
+            display: block;
+            font-weight: 600;
+            font-size: .85rem;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: .9rem;
+            background: #f8fafc;
+            resize: vertical;
+        }
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--blue);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, .1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: .15s;
+        }
+        .btn-login:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .btn-login:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== 仪表盘布局 ===== */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+        .dashboard.show {
+            display: flex;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px;
+            background: #0f172a;
+            color: #fff;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 100;
+            transition: transform .3s ease;
+        }
+        .sidebar .brand {
+            padding: 0 18px 18px;
+            font-weight: 700;
+            font-size: .95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+            margin-bottom: 12px;
+        }
+        .sidebar .brand img {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            color: rgba(255, 255, 255, .55);
+            font-size: .85rem;
+            font-weight: 500;
+            transition: .15s;
+            margin: 1px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background: rgba(255, 255, 255, .1);
+            color: #fff;
+        }
+        .sidebar .user-info {
+            padding: 14px 18px;
+            border-top: 1px solid rgba(255, 255, 255, .1);
+            margin-top: auto;
+            font-size: .78rem;
+            color: rgba(255, 255, 255, .45);
+        }
+        .sidebar .user-info strong {
+            color: #fff;
+            display: block;
+        }
+        .sidebar .nav-bottom {
+            padding: 0 18px 8px;
+        }
+        .sidebar .nav-bottom button {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: .8rem;
+            width: 100%;
+            transition: .15s;
+        }
+        .sidebar .nav-bottom button:hover {
+            background: rgba(255, 255, 255, .18);
+        }
+
+        /* ===== 主内容 ===== */
+        .main {
+            flex: 1;
+            padding: 24px 28px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .topbar h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-card .ic {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .stat-card .ic.blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        .stat-card .ic.green {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+        .stat-card .ic.amber {
+            background: #fffbeb;
+            color: #f59e0b;
+        }
+        .stat-card .ic.purple {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+        .stat-card .num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .stat-card .lbl {
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        /* ===== 面板 ===== */
+        .panel {
+            display: none;
+        }
+        .panel.show {
+            display: block;
+        }
+        .card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+        }
+        .card-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 18px;
+        }
+
+        .no-perm {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .no-perm .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+        .no-perm h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .no-perm p {
+            font-size: .85rem;
+        }
+
+        /* ===== 表格 ===== */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        th,
+        td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: .84rem;
+            white-space: nowrap;
+        }
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--muted);
+            font-size: .75rem;
+            letter-spacing: .5px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        tr:hover td {
+            background: #fafbfc;
+        }
+        td.ellipsis {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 12px;
+            font-size: .7rem;
+            font-weight: 600;
+        }
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-gray {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        /* ===== 按钮 ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: .82rem;
+            font-weight: 600;
+            border: none;
+            transition: .15s;
+            white-space: nowrap;
+        }
+        .btn-blue {
+            background: var(--blue);
+            color: #fff;
+        }
+        .btn-blue:hover {
+            background: #1d4ed8;
+        }
+        .btn-outline {
+            background: #fff;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+        .btn-green {
+            background: var(--green);
+            color: #fff;
+        }
+        .btn-green:hover {
+            background: #059669;
+        }
+        .btn-danger {
+            background: #fff;
+            color: var(--red);
+            border: 1px solid #fecaca;
+        }
+        .btn-danger:hover {
+            background: #fef2f2;
+        }
+        .btn-xs {
+            padding: 4px 10px;
+            font-size: .73rem;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: .78rem;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .toolbar select,
+        .toolbar input {
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: .82rem;
+            background: #fff;
+            max-width: 140px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .g {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .mb {
+            margin-bottom: 14px;
+        }
+
+        /* ===== 编辑器 ===== */
+        .editor-wrap {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+            padding: 24px;
+            margin-bottom: 18px;
+            display: none;
+        }
+        .editor-wrap.show {
+            display: block;
+        }
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .preview-box {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            min-height: 60px;
+            font-size: .78rem;
+            color: var(--muted);
+            background: #fafbfc;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* ===== 开关 ===== */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .toggle-big {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: .9rem;
+            font-weight: 700;
+            border: none;
+            color: #fff;
+            min-width: 120px;
+            transition: .2s;
+        }
+        .toggle-big:hover {
+            transform: translateY(-1px);
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .setting-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px;
+            text-align: center;
+        }
+        .setting-card label {
+            display: block;
+            font-size: .7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .setting-card input {
+            width: 80px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #2563eb;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+        }
+        .setting-card input:focus {
+            outline: none;
+            border-color: var(--blue);
+        }
+
+        /* ===== 财务 ===== */
+        .fin-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .fin-box {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 18px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .fin-box .amount {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .fin-box .lbl {
+            font-size: .75rem;
+            color: var(--muted);
+        }
+        .fin-box.green .amount {
+            color: #10b981;
+        }
+        .fin-box.red .amount {
+            color: #ef4444;
+        }
+        .fin-box.blue .amount {
+            color: #2563eb;
+        }
+
+        /* ===== 弹窗 ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-inner {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+            position: relative;
+        }
+        .modal-inner h3 {
+            margin-bottom: 16px;
+            padding-right: 30px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f9;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: .15s;
+            color: #64748b;
+        }
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .kv {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: .85rem;
+            gap: 12px;
+        }
+        .kv .k {
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+        .kv .v {
+            font-weight: 500;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            font-size: .85rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+            animation: slideIn .3s;
+            max-width: 90vw;
+        }
+        .toast.ok {
+            background: #10b981;
+        }
+        .toast.err {
+            background: #ef4444;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== 汉堡菜单按钮 ===== */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 200;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #0f172a;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+            transition: .2s;
+        }
+        .hamburger:active {
+            transform: scale(.93);
+        }
+
+        /* 侧边栏遮罩 */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 99;
+        }
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* ===== 响应式 ===== */
+        @media(max-width:768px) {
+            .dashboard.show {
+                flex-direction: column;
+            }
+
+            /* 仅仪表盘显示时，汉堡按钮才出现 */
+            body.dashboard-shown .hamburger {
+                display: flex;
+            }
+
+            /* 侧边栏：手机端变为左侧滑出覆盖层 */
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                height: 100dvh;
+                width: 260px;
+                transform: translateX(-100%);
+                z-index: 150;
+                box-shadow: 4px 0 20px rgba(0, 0, 0, .35);
+                padding-top: 56px;
+                overflow-y: auto;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                padding: 14px 12px 16px;
+                max-height: none;
+                overflow-y: visible;
+            }
+            .topbar {
+                margin-bottom: 14px;
+            }
+            .topbar h2 {
+                font-size: 1.15rem;
+            }
+            .topbar .btn-outline {
+                font-size: .7rem;
+                padding: 5px 10px;
+            }
+
+            .stats-row,
+            .fin-summary {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .settings-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .row2 {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 12px 14px;
+                gap: 10px;
+            }
+            .stat-card .num {
+                font-size: 1.3rem;
+            }
+            .stat-card .ic {
+                width: 34px;
+                height: 34px;
+                font-size: .95rem;
+            }
+
+ . {
+:                :85            }
+ .card {
+                padding: 12px;
+            }
+            .editor-wrap {
+                padding: 14px;
+            }
+            .toolbar {
+                gap: 6px;
+            }
+            .toolbar select,
+            .toolbar input {
+                padding: 6px 8px;
+                font-size: .75rem;
+                max-width: 110px;
+            }
+
+            table {
+                min-width: 500px;
+            }
+            th,
+            td {
+                padding: 7px 8px;
+                font-size: .73rem;
+            }
+            .btn {
+                padding: 5px 10px;
+                font-size: .73rem;
+            }
+            .btn-xs {
+                padding: 3px 7px;
+                font-size: .68rem;
+            }
+            .btn-sm {
+                padding: 5px 9px;
+                font-size: .72rem;
+            }
+
+            .toggle-row {
+                padding: 12px 14px;
+            }
+            .toggle-big {
+                padding: 8px 16px;
+                font-size: .8rem;
+                min-width: 100px;
+            }
+
+            .fin-box .amount {
+                font-size: 1.3rem;
+            }
+            .setting-card input {
+                width: 60px;
+                font-size: 1.1rem;
+            }
+
+            .modal-inner {
+                padding: 18px;
+                border-radius: 12px;
+                max-height: 85vh;
+            }
+            .kv {
+                font-size: .78rem;
+            }
+        }
+        @media(max-width:480px) {
+            .stats-row,
+            .fin-summary,
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .toolbar select,
+            .toolbar input {
+                max-width: none;
+                width: 100%;
+            }
+            table {
+                min-width: 400px;
+            }
+            .btn-row {
+                justify-content: stretch;
+            }
+            .btn-row .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 汉堡按钮（仅仪表盘 + 手机端显示，CSS 由 body.dashboard-shown 控制） ===== -->
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="菜单">☰</button>
+
+    <!-- 侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ===== 登录页 ===== -->
+    <div class="login-wrap" id="loginPage">
+        <div class="login-card">
+            <div class="logo">📰</div>
+            <h1>管理后台</h1>
+            <p class="sub">岳阳县二中学生记者社</p>
+            <div class="field"><label>管理员邮箱</label><input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="email"></div>
+            <div class="field"><label>密码</label><input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+            <button class="btn-login" onclick="doLogin()">登 录</button>
+        </div>
+    </div>
+
+    <!-- ===== 仪表盘 ===== -->
+    <div class="dashboard" id="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="brand"><img src="https://s41.ax1x.com/2026/07/05/pm0HYZV.png" alt="">记者社后台</div>
+            <nav>
+                <a class="active" data-tab="articles" onclick="switchTab('articles')">📰 文章管理</a>
+                <a data-tab="recruitment" onclick="switchTab('recruitment')">📝 报名审核</a>
+                <a data-tab="finance" onclick="switchTab('finance')">💰 财务管理</a>
+                <a data-tab="logs" onclick="switchTab('logs')">📋 操作日志</a>
+                <a data-tab="settings" onclick="switchTab('settings')">⚙️ 网站设置</a>
+                <a data-tab="members" onclick="switchTab('members')">👥 成员管理</a>
+            </nav>
+            <div class="user-info">
+                <strong id="userName">-</strong>
+                <span id="userRoleTag">-</span>
+            </div>
+            <div class="nav-bottom"><button onclick="doLogout()">🚪 退出登录</button></div>
+        </aside>
+
+        <main class="main">
+            <div class="topbar">
+                <h2 id="pageTitle">📰 文章管理</h2>
+                <a href="index.html" target="_blank" class="btn btn-outline btn-sm">🏠 查看首页</a>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card"><div class="ic blue">📰</div><div><div class="num" id="sArticles">-</div><div class="lbl">文章总数</div></div></div>
+                <div class="stat-card"><div class="ic green">📝</div><div><div class="num" id="sTotal">-</div><div class="lbl">报名总数</div></div></div>
+                <div class="stat-card"><div class="ic amber">⏳</div><div><div class="num" id="sPending">-</div><div class="lbl">待审核报名</div></div></div>
+                <div class="stat-card"><div class="ic purple">💰</div><div><div class="num" id="sBalance">-</div><div class="lbl">财务余额</div></div></div>
+            </div>
+
+            <!-- 各面板容器 -->
+            <div class="panel show" id="panel-articles"><div id="perm-articles"></div></div>
+            <div class="panel" id="panel-recruitment"><div id="perm-recruitment"></div></div>
+            <div class="panel" id="panel-finance"><div id="perm-finance"></div></div>
+            <div class="panel" id="panel-logs"><div id="perm-logs"></div></div>
+            <div class="panel" id="panel-settings"><div id="perm-settings"></div></div>
+            <div class="panel" id="panel-members"><div id="perm-members"></div></div>
+        </main>
+    </div>
+
+    <!-- ===== 详情弹窗 ===== -->
+    <div class="modal" id="detailModal">
+        <div class="modal-inner">
+            <button class="modal-close" onclick="closeDetail()" aria-label="关闭">✕</button>
+            <h3>📋 报名详情</h3>
+            <div id="detailContent"></div>
+            <div class="btn-row" id="detailActions"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Supabase 初始化 =====
+        var supabase = window.supabase.createClient(
+            'https://dhwgxuvkwjqkwgetezun.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2d4dXZrd2pxa3dnZXRlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTU4NDksImV4cCI6MjA5ODc3MTg0OX0.xbeSSfXk6_mdKN-9B1B0MByiFrXIntcNDlJS1XAnlrs'
+        );
+        var currentUser = null;
+        var currentDetailId = null;
+        var allRecData = [];
+        var loadingTab = false;
+
+        // ===== 改动 1：roleNames 替换 =====
+        var roleNames = {
+            super_admin:'👑 超级管理员', president:'👔 社长', admin_secretary:'📋 行政秘书', vice_president:'🏠 副社长',
+            author:'📝 采访部', photographer:'📸 摄影部', video_editor:'🎬 剪辑部',
+            recruitment_admin:'📢 策划部', logistics_admin:'🔧 后勤部', finance_admin:'💰 财务部',
+            viewer:'👁️ 普通社员'
+        };
+
+        function hasRole() {
+            return currentUser && Array.prototype.indexOf.call(arguments, currentUser.role) !== -1;
+        }
+
+        // ===== HTML 转义 =====
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function escAttr(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // ===== 侧边栏切换（手机端） =====
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+            var isOpen = sidebar.classList.contains('open');
+            if (isOpen) {
+                closeSidebar();
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // ===== 登录 =====
+        supabase.auth.getSession().then(function(r) {
+            if (r.data && r.data.session) {
+                loadProfile(r.data.session.user.id);
+            }
+        });
+
+        function loadProfile(uid) {
+            supabase.from('profiles').select('*').eq('id', uid).single().then(function(r) {
+                if (r.error || !r.data) {
+                    currentUser = { id: uid, role: 'viewer', display_name: '', department: '' };
+                } else {
+                    currentUser = r.data;
+                }
+                showDashboard();
+            });
+        }
+
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboard').classList.add('show');
+            document.body.classList.add('dashboard-shown');
+            document.getElementById('userName').textContent =
+                currentUser.display_name || currentUser.department || '用户';
+            document.getElementById('userRoleTag').textContent =
+                roleNames[currentUser.role] || currentUser.role;
+            loadStats();
+            switchTab('articles');
+        }
+
+        function switchTab(t) {
+            if (loadingTab) return;
+            loadingTab = true;
+            closeSidebar();
+            document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('show'); });
+            var panel = document.getElementById('panel-' + t);
+            if (panel) panel.classList.add('show');
+            document.querySelectorAll('.sidebar nav a').forEach(function(a) { a.classList.remove('active'); });
+            var link = document.querySelector('.sidebar nav a[data-tab="' + t + '"]');
+            if (link) link.classList.add('active');
+            var titles = {
+                articles: '📰 文章管理',
+                recruitment: '📝 报名审核',
+                finance: '💰 财务管理',
+                logs: '📋 操作日志',
+                settings: '⚙️ 网站设置',
+                members: '👥 成员管理'
+            };
+            document.getElementById('pageTitle').textContent = titles[t] || '';
+            buildPanel(t);
+            loadingTab = false;
+        }
+
+        function buildPanel(t) {
+            var container = document.getElementById('perm-' + t);
+            if (!container) return;
+            switch (t) {
+                case 'articles':   buildArticles(container);   break;
+                case 'recruitment': buildRecruitment(container); break;
+                case 'finance':     buildFinance(container);    break;
+                case 'logs':        buildLogs(container);       break;
+                case 'settings':    buildSettings(container);   break;
+                case 'members':     buildMembers(container);    break;
+            }
+        }
+
+        function noPerm(container, msg) {
+            container.innerHTML =
+                '<div class="no-perm"><div class="icon">🔒</div><h3>暂无此权限</h3><p>' + msg + '</p></div>';
+        }
+
+        // ===== 统计数据 =====
+        function loadStats() {
+            supabase.from('articles').select('id', { count: 'exact' }).then(function(r) {
+                document.getElementById('sArticles').textContent = r.count || 0;
+            });
+            supabase.from('recruitment').select('id', { count: 'exact' }).then(function(r) {
+                document.getElementById('sTotal').textContent = r.count || 0;
+            });
+            supabase.from('recruitment').select('id', { count: 'exact' }).eq('status', 'pending').then(
+                function(r) { document.getElementById('sPending').textContent = r.count || 0; }
+            );
+            if (hasRole('super_admin', 'finance_admin')) {
+                supabase.from('finance_records').select('amount,type').then(function(r) {
+                    var income = 0, expense = 0;
+                    if (r.data) {
+                        for (var i = 0; i < r.data.length; i++) {
+                            if (r.data[i].type === 'income') income += r.data[i].amount;
+                            else expense += r.data[i].amount;
+                        }
+                    }
+                    document.getElementById('sBalance').textContent = '¥' + (income - expense).toFixed(0);
+                });
+            } else {
+                document.getElementById('sBalance').textContent = '-';
+            }
+        }
+
+        // ===== 日志 =====
+        function writeLog(action, targetType, targetId, detail) {
+            supabase.from('activity_log').insert([{
+                user_id: currentUser.id,
+                user_name: currentUser.display_name || currentUser.department || '',
+                user_role: currentUser.role,
+                action: action,
+                target_type: targetType || '',
+                target_id: targetId || '',
+                detail: detail || ''
+            }]).then(function() {});
+        }
+
+        // ==========================================
+        // 1. 文章管理
+        // ==========================================
+        function buildArticles(container) {
+            if (!hasRole('super_admin', 'admin_secretary', 'vice_president', 'author')) {
+                noPerm(container, '只有社长、行政秘书、副社长和采访部成员可以访问文章管理。');
+                return;
+            }
+            // ===== 改动 3：canPub 新增 president =====
+            var canPub = hasRole('super_admin', 'president', 'admin_secretary', 'vice_president');
+            var html = '';
+            html += '<div class="card"><div class="card-header"><span>文章列表</span>';
+            html += '<button class="btn btn-blue btn-sm" onclick="openEditor()">+ 写文章</button></div>';
+
+            // 编辑器
+            html += '<div class="editor-wrap" id="editor"><h3 id="editorTitle" style="margin-bottom:16px;">写文章</h3>';
+            html += '<input type="hidden" id="editId">';
+            html += '<div class="row2 mb"><div class="field"><label>标题</label><input type="text" id="aTitle" placeholder="文章标题"></div><div class="field"><label>分类</label><input type="text" id="aCategory" placeholder="例如：校园新闻、人物专访"></div></div>';
+            html += '<div class="row2 mb"><div class="field"><label>作者署名</label><input type="text" id="aAuthor" placeholder="记者社"></div><div class="field"><label>封面图URL</label><input type="text" id="aCover" placeholder="https://..."></div></div>';
+            html += '<div class="field"><label>摘要</label><textarea id="aExcerpt" rows="2" placeholder="简短描述文章内容"></textarea></div>';
+            html += '<div class="field"><label>内容（支持HTML）</label><textarea id="aContent" rows="8" placeholder="<p>正文内容...</p>"></textarea></div>';
+            html += '<div class="field"><label>预览</label><div class="preview-box" id="previewBox"><span style="color:#94a3b8;">输入内容后自动预览</span></div></div>';
+            html += '<div class="g">';
+            if (canPub) html += '<button class="btn btn-blue" onclick="saveArticle(true)">💾 发布</button>';
+            html += '<button class="btn btn-green" onclick="saveArticle(false)">📄 保存草稿</button>';
+            html += '<button class="btn btn-outline" onclick="closeEditor()">取消</button></div></div>';
+
+            // 表格
+            html += '<div class="table-wrap"><table><thead><tr><th>标题</th><th>分类</th><th>作者</th><th>日期</th><th>状态</th><th>操作</th></tr></thead><tbody id="articlesTbody"><tr><td colspan="6" style="text-align:center;padding:32px;color:#888;">加载中...</td></tr></tbody></table></div>';
+            html += '</div>';
+
+            container.innerHTML = html;
+            document.getElementById('aContent').addEventListener('input', function() {
+                document.getElementById('previewBox').innerHTML = this.value || '<span style="color:#94a3b8;">预览</span>';
+            });
+            loadArticleList();
+        }
+
+        function loadArticleList() {
+            var q = supabase.from('articles').select('*').order('created_at', { ascending: false });
+            if (hasRole('author') && !hasRole('super_admin', 'admin_secretary', 'vice_president')) {
+                q = q.eq('author_id', currentUser.id);
+            }
+            q.then(function(r) {
+                var tb = document.getElementById('articlesTbody');
+                if (!tb) return;
+                if (!r.data || r.data.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#888;">暂无文章</td></tr>';
+                    return;
+                }
+                var h = '';
+                for (var i = 0; i < r.data.length; i++) {
+                    var a = r.data[i];
+                    // ===== 改动 4：canEdit 新增 president =====
+                    var canEdit = hasRole('super_admin', 'president', 'admin_secretary', 'vice_president') ||
+                        (a.author_id === currentUser.id);
+                    // ===== 改动 5：canDel 新增 president =====
+                    var canDel = hasRole('super_admin', 'president', 'admin_secretary', 'vice_president');
+                    h += '<tr>';
+                    h += '<td class="ellipsis" title="' + escAttr(a.title) + '">' + escHtml(a.title) + '</td>';
+                    h += '<td>' + escHtml(a.category || '') + '</td>';
+                    h += '<td>' + escHtml(a.author || '') + '</td>';
+                    h += '<td>' + (a.created_at || '').substring(0, 10) + '</td>';
+                    h += '<td><span class="badge ' + (a.published ? 'badge-green' : 'badge-gray') + '">' +
+                        (a.published ? '已发布' : '草稿') + '</span></td>';
+                    h += '<td style="white-space:nowrap;">';
+                    if (canEdit) h += '<button class="btn btn-outline btn-xs" onclick="editArticle(\'' + a.id + '\')">编辑</button> ';
+                    if (canDel) h += '<button class="btn btn-danger btn-xs" onclick="deleteArticle(\'' + a.id + '\')">删除</button>';
+                    h += '</td></tr>';
+                }
+                tb.innerHTML = h;
+            });
+        }
+
+        function openEditor() {
+            document.getElementById('editId').value = '';
+            document.getElementById('editorTitle').textContent = '写文章';
+            document.getElementById('aTitle').value = '';
+            document.getElementById('aCategory').value = '';
+            document.getElementById('aAuthor').value = '';
+            document.getElementById('aCover').value = '';
+            document.getElementById('aExcerpt').value = '';
+            document.getElementById('aContent').value = '';
+            document.getElementById('previewBox').innerHTML = '<span style="color:#94a3b8;">预览</span>';
+            document.getElementById('editor').classList.add('show');
+            document.getElementById('editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closeEditor() {
+            document.getElementById('editor').classList.remove('show');
+        }
+
+        function editArticle(id) {
+            supabase.from('articles').select('*').eq('id', id).single().then(function(r) {
+                if (r.error) { toast('加载文章失败', 'err'); return; }
+                var a = r.data;
+                document.getElementById('editId').value = a.id;
+                document.getElementById('editorTitle').textContent = '编辑文章';
+                document.getElementById('aTitle').value = a.title || '';
+                document.getElementById('aCategory').value = a.category || '';
+                document.getElementById('aAuthor').value = a.author || '';
+                document.getElementById('aCover').value = a.cover_image || '';
+                document.getElementById('aExcerpt').value = a.excerpt || '';
+                document.getElementById('aContent').value = a.content || '';
+                document.getElementById('previewBox').innerHTML = a.content || '<span style="color:#94a3b8;">预览</span>';
+                document.getElementById('editor').classList.add('show');
+                document.getElementById('editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        function saveArticle(pub) {
+            var id = document.getElementById('editId').value;
+            var data = {
+                title: document.getElementById('aTitle').value.trim(),
+                category: document.getElementById('aCategory').value.trim(),
+                author: document.getElementById('aAuthor').value.trim(),
+                cover_image: document.getElementById('aCover').value.trim(),
+                excerpt: document.getElementById('aExcerpt').value.trim(),
+                content: document.getElementById('aContent').value.trim(),
+                published: pub,
+                updated_at: new Date().toISOString()
+            };
+            if (!data.title) { toast('标题不能为空', 'err'); return; }
+            var p;
+            if (id) {
+                p = supabase.from('articles').update(data).eq('id', id);
+            } else {
+                data.author_id = currentUser.id;
+                data.department = currentUser.department;
+                data.created_at = new Date().toISOString();
+                p = supabase.from('articles').insert([data]);
+            }
+            p.then(function(r) {
+                if (r.error) { toast('保存失败: ' + r.error.message, 'err'); return; }
+                closeEditor();
+                loadStats();
+                var title = data.title || '无标题';
+                var targetId = id || (r.data && r.data[0] ? r.data[0].id : '');
+                writeLog(pub ? '发布文章' : '保存草稿', 'article', targetId, title);
+                loadArticleList();
+                toast(pub ? '发布成功' : '草稿已保存', 'ok');
+            });
+        }
+
+        function deleteArticle(id) {
+            if (!confirm('确定删除这篇文章？此操作不可恢复。')) return;
+            supabase.from('articles').delete().eq('id', id).then(function(r) {
+                if (r.error) { toast('删除失败: ' + r.error.message, 'err'); return; }
+                writeLog('删除文章', 'article', id, '');
+                loadArticleList();
+                loadStats();
+                toast('已删除', 'ok');
+            });
+        }
+
+        // ==========================================
+        // 2. 报名审核
+        // ==========================================
+        function buildRecruitment(container) {
+            // ===== 改动 6：buildRecruitment 权限新增 president =====
+            if (!hasRole('super_admin', 'president', 'admin_secretary', 'vice_president', 'recruitment_admin')) {
+                noPerm(container, '只有社长、行政秘书、副社长和策划部成员可以审核报名。');
+                return;
+            }
+            var html = '<div class="card"><div class="card-header"><span>招新报名记录</span>';
+            html += '<div class="toolbar" style="margin-bottom:0;">';
+            html += '<select id="fDept" onchange="loadRecList()"><option value="">全部部门</option><option>采访部</option><option>摄影部</option><option>剪辑部</option><option>策划部</option><option>后勤部</option><option>财务部</option></select>';
+            html += '<select id="fStatus" onchange="loadRecList()"><option value="">全部状态</option><option value="pending">待审核</option><option value="accepted">已通过</option><option value="rejected">未通过</option></select>';
+            html += '<input type="text" id="fSearch" placeholder="搜索姓名/班级" oninput="loadRecList()">';
+            html += '</div></div>';
+            html += '<div style="padding:8px 18px;display:flex;gap:8px;flex-wrap:wrap;">';
+            html += '<button class="btn btn-green btn-sm" onclick="batchAccept()">✅ 批量通过</button>';
+            html += '<button class="btn btn-outline btn-sm" onclick="exportCSV()">📥 导出CSV</button>';
+            html += '</div>';
+            html += '<div class="table-wrap"><table><thead><tr><th style="width:30px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th>姓名</th><th>班级</th><th>手机</th><th>部门</th><th>日期</th><th>状态</th><th>操作</th></tr></thead><tbody id="recruitmentTbody"><tr><td colspan="8" style="text-align:center;padding:32px;">加载中...</td></tr></tbody></table></div>';
+            html += '<div style="padding:10px 18px;color:var(--muted);font-size:.8rem;" id="recCount"></div>';
+            html += '</div>';
+            container.innerHTML = html;
+            loadRecList();
+        }
+
+        function loadRecList() {
+            var deptEl = document.getElementById('fDept');
+            var statusEl = document.getElementById('fStatus');
+            var searchEl = document.getElementById('fSearch');
+            if (!deptEl || !statusEl || !searchEl) return;
+            var dept = deptEl.value;
+            var status = statusEl.value;
+            var search = searchEl.value.trim().toLowerCase();
+            var q = supabase.from('recruitment').select('*').order('created_at', { ascending: false });
+            if (dept) q = q.eq('department', dept);
+            if (status) q = q.eq('status', status);
+            q.then(function(r) {
+                var data = r.data || [];
+                if (search) {
+                    data = data.filter(function(d) {
+                        return (d.name || '').toLowerCase().indexOf(search) !== -1 ||
+                            (d.class_name || '').toLowerCase().indexOf(search) !== -1;
+                    });
+                }
+                allRecData = data;
+                var countEl = document.getElementById('recCount');
+                if (countEl) countEl.textContent = '共 ' + data.length + ' 条';
+                var tb = document.getElementById('recruitmentTbody');
+                if (!tb) return;
+                var map = { pending: '待审核', accepted: '已通过', rejected: '未通过' };
+                if (data.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;">暂无报名记录</td></tr>';
+                    return;
+                }
+                var h = '';
+                for (var i = 0; i < data.length; i++) {
+                    var a = data[i];
+                    var bc = a.status === 'pending' ? 'badge-yellow' :
+                        (a.status === 'accepted' ? 'badge-green' : 'badge-red');
+                    h += '<tr>';
+                    h += '<td><input type="checkbox" class="rec-check" value="' + a.id + '"></td>';
+                    h += '<td><a href="javascript:void(0)" style="color:#2563eb;font-weight:600;" onclick="openDetail(\'' + a.id + '\')">' + escHtml(a.name) + '</a></td>';
+                    h += '<td>' + escHtml(a.class_name || '') + '</td>';
+                    h += '<td>' + escHtml(a.phone || '') + '</td>';
+                    h += '<td>' + escHtml(a.department || '') + '</td>';
+                    h += '<td>' + (a.created_at || '').substring(0, 10) + '</td>';
+                    h += '<td><span class="badge ' + bc + '">' + (map[a.status] || a.status) + '</span></td>';
+                    h += '<td style="white-space:nowrap;">';
+                    h += '<button class="btn btn-outline btn-xs" onclick="updateRec(\'' + a.id + '\',\'accepted\')">通过</button> ';
+                    h += '<button class="btn btn-outline btn-xs" onclick="updateRec(\'' + a.id + '\',\'rejected\')">拒绝</button>';
+                    h += '</td></tr>';
+                }
+                tb.innerHTML = h;
+            });
+        }
+
+        function toggleSelectAll() {
+            var all = document.getElementById('selectAll');
+            if (!all) return;
+            var checked = all.checked;
+            document.querySelectorAll('.rec-check').forEach(function(c) { c.checked = checked; });
+        }
+
+        function batchAccept() {
+            var ids = [];
+            document.querySelectorAll('.rec-check:checked').forEach(function(c) { ids.push(c.value); });
+            if (ids.length === 0) { toast('请先勾选要操作的记录', 'err'); return; }
+            if (!confirm('确定批量通过 ' + ids.length + ' 条报名记录？')) return;
+            var promises = [];
+            for (var i = 0; i < ids.length; i++) {
+                promises.push(supabase.from('recruitment').update({ status: 'accepted' }).eq('id', ids[i]));
+            }
+            Promise.all(promises).then(function(results) {
+                var failed = 0;
+                for (var j = 0; j < results.length; j++) {
+                    if (results[j].error) failed++;
+                }
+                loadRecList();
+                loadStats();
+                writeLog('批量通过报名', 'recruitment', '', ids.length + '条');
+                if (failed > 0) {
+                    toast('通过 ' + (ids.length - failed) + ' 条，' + failed + ' 条失败', 'err');
+                } else {
+                    toast('已通过 ' + ids.length + ' 条', 'ok');
+                }
+            });
+        }
+
+        function updateRec(id, status) {
+            supabase.from('recruitment').update({ status: status }).eq('id', id).then(function(r) {
+                if (r.error) { toast('更新失败: ' + r.error.message, 'err'); return; }
+                loadRecList();
+                loadStats();
+                writeLog(status === 'accepted' ? '通过报名' : '拒绝报名', 'recruitment', id, '');
+                toast('已更新', 'ok');
+            });
+        }
+
+        function openDetail(id) {
+            var d = null;
+            for (var i = 0; i < allRecData.length; i++) {
+                if (allRecData[i].id === id) { d = allRecData[i]; break; }
+            }
+            if (!d) {
+                supabase.from('recruitment').select('*').eq('id', id).single().then(function(r) {
+                    if (r.error || !r.data) { toast('加载详情失败', 'err'); return; }
+                    renderDetail(r.data);
+                });
+                return;
+            }
+            renderDetail(d);
+        }
+
+        function renderDetail(d) {
+            currentDetailId = d.id;
+            var map = { pending: '⏳ 待审核', accepted: '✅ 已通过', rejected: '❌ 未通过' };
+            var h = '';
+            h += '<div class="kv"><span class="k">姓名</span><span class="v">' + escHtml(d.name) + '</span></div>';
+            h += '<div class="kv"><span class="k">班级</span><span class="v">' + escHtml(d.class_name || '') + '</span></div>';
+            h += '<div class="kv"><span class="k">手机</span><span class="v">' + escHtml(d.phone || '') + '</span></div>';
+            if (d.email) h += '<div class="kv"><span class="k">邮箱</span><span class="v">' + escHtml(d.email) + '</span></div>';
+            h += '<div class="kv"><span class="k">部门</span><span class="v">' + escHtml(d.department || '') + '</span></div>';
+            if (d.skills) h += '<div class="kv"><span class="k">特长</span><span class="v">' + escHtml(d.skills) + '</span></div>';
+            h += '<div class="kv"><span class="k">理由</span><span class="v" style="max-width:220px;text-align:left;">' + escHtml(d.reason || '') + '</span></div>';
+            h += '<div class="kv"><span class="k">时间</span><span class="v">' + (d.created_at || '').substring(0, 16) + '</span></div>';
+            h += '<div class="kv"><span class="k">状态</span><span class="v">' + (map[d.status] || d.status) + '</span></div>';
+            document.getElementById('detailContent').innerHTML = h;
+            document.getElementById('detailActions').innerHTML =
+                '<button class="btn btn-outline btn-sm" onclick="detailRec(\'pending\')">↩️ 重置待定</button>' +
+                '<button class="btn btn-danger btn-sm" onclick="detailDelete()">🗑️ 删除</button>' +
+                '<button class="btn btn-outline btn-sm" onclick="detailRec(\'rejected\')">❌ 拒绝</button>' +
+                '<button class="btn btn-green btn-sm" onclick="detailRec(\'accepted\')">✅ 通过</button>';
+            document.getElementById('detailModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('show');
+            document.body.style.overflow = '';
+            currentDetailId = null;
+        }
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDetail();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('detailModal').classList.contains('show')) closeDetail();
+                if (document.getElementById('sidebarOverlay').classList.contains('show')) closeSidebar();
+            }
+        });
+
+        function detailRec(status) {
+            if (!currentDetailId) return;
+            supabase.from('recruitment').update({ status: status }).eq('id', currentDetailId).then(function(r) {
+                if (r.error) { toast('更新失败', 'err'); return; }
+                closeDetail();
+                loadRecList();
+                loadStats();
+                writeLog('更新报名状态', 'recruitment', currentDetailId, status);
+                toast('已更新', 'ok');
+            });
+        }
+
+        function detailDelete() {
+            if (!currentDetailId) return;
+            if (!confirm('确定删除此报名记录？此操作不可恢复。')) return;
+            supabase.from('recruitment').delete().eq('id', currentDetailId).then(function(r) {
+                if (r.error) { toast('删除失败', 'err'); return; }
+                closeDetail();
+                loadRecList();
+                loadStats();
+                writeLog('删除报名', 'recruitment', currentDetailId, '');
+                toast('已删除', 'ok');
+            });
+        }
+
+        function exportCSV() {
+            var headers = ['姓名', '班级', '手机', '邮箱', '部门', '特长', '理由', '状态', '日期'];
+            var rows = [headers.join(',')];
+            var map = { pending: '待审核', accepted: '已通过', rejected: '未通过' };
+            for (var i = 0; i < allRecData.length; i++) {
+                var d = allRecData[i];
+                rows.push('"' + [
+                    d.name || '', d.class_name || '', d.phone || '', d.email || '',
+                    d.department || '', d.skills || '',
+                    (d.reason || '').replace(/"/g, '""'),
+                    map[d.status] || d.status,
+                    (d.created_at || '').substring(0, 10)
+                ].join('","') + '"');
+            }
+            var csv = '\uFEFF' + rows.join('\n');
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = '招新数据_' + new Date().toISOString().substring(0, 10) + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            toast('导出成功', 'ok');
+        }
+
+        // ==========================================
+        // 3. 财务管理
+        // ==========================================
+        function buildFinance(container) {
+            // ===== 改动 7：buildFinance 权限新增 president =====
+            if (!hasRole('super_admin', 'president', 'finance_admin')) {
+                noPerm(container, '只有社长和财务部成员可以访问财务管理。');
+                return;
+            }
+            var html = '';
+            html += '<div class="fin-summary"><div class="fin-box green"><div class="amount" id="finIncome">¥0</div><div class="lbl">总收入</div></div><div class="fin-box red"><div class="amount" id="finExpense">¥0</div><div class="lbl">总支出</div></div><div class="fin-box blue"><div class="amount" id="finBalance">¥0</div><div class="lbl">余额</div></div></div>';
+            html += '<div class="card"><div class="card-header"><span>收支记录</span><button class="btn btn-blue btn-sm" onclick="openFinEditor()">+ 新增记录</button></div>';
+            html += '<div class="card-body" id="finEditor" style="display:none;">';
+            html += '<div class="row2 mb"><div class="field"><label>类型</label><select id="fType"><option value="income">收入</option><option value="expense">支出</option></select></div><div class="field"><label>金额（元）</label><input type="number" id="fAmount" step="0.01" placeholder="0.00" min="0"></div></div>';
+            html += '<div class="row2 mb"><div class="field"><label>分类</label><select id="fCategory"><option value="">请选择</option><option value="活动经费">活动经费</option><option value="器材采购">器材采购</option><option value="打印印刷">打印印刷</option><option value="奖品奖状">奖品奖状</option><option value="社费收入">社费收入</option><option value="学校拨款">学校拨款</option><option value="赞助收入">赞助收入</option><option value="其他">其他</option></select></div><div class="field"><label>经手人</label><input type="text" id="fHandler" placeholder="经手人姓名"></div></div>';
+            html += '<div class="field mb"><label>说明</label><input type="text" id="fDesc" placeholder="简要说明"></div>';
+            html += '<div class="g"><button class="btn btn-blue btn-sm" onclick="saveFin()">💾 保存</button><button class="btn btn-outline btn-sm" onclick="document.getElementById(\'finEditor\').style.display=\'none\'">取消</button></div></div>';
+            html += '<div class="table-wrap"><table><thead><tr><th>日期</th><th>类型</th><th>分类</th><th>金额</th><th>说明</th><th>经手人</th><th>操作</th></tr></thead><tbody id="financeTbody"><tr><td colspan="7" style="text-align:center;padding:32px;">加载中...</td></tr></tbody></table></div></div>';
+            container.innerHTML = html;
+            loadFinanceList();
+        }
+
+        function openFinEditor() {
+            var editor = document.getElementById('finEditor');
+            if (!editor) return;
+            editor.style.display = 'block';
+            document.getElementById('fType').value = 'expense';
+            document.getElementById('fAmount').value = '';
+            document.getElementById('fCategory').value = '';
+            document.getElementById('fHandler').value = '';
+            document.getElementById('fDesc').value = '';
+            editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function saveFin() {
+            var amount = parseFloat(document.getElementById('fAmount').value) || 0;
+            if (!amount || amount <= 0) { toast('请输入有效的金额', 'err'); return; }
+            var data = {
+                type: document.getElementById('fType').value,
+                amount: amount,
+                category: document.getElementById('fCategory').value,
+                handler: document.getElementById('fHandler').value.trim(),
+                description: document.getElementById('fDesc').value.trim(),
+                status: 'approved',
+                created_by: currentUser.id
+            };
+            supabase.from('finance_records').insert([data]).then(function(r) {
+                if (r.error) { toast('保存失败: ' + r.error.message, 'err'); return; }
+                document.getElementById('finEditor').style.display = 'none';
+                loadFinanceList();
+                loadStats();
+                var fid = r.data && r.data[0] ? r.data[0].id : '';
+                writeLog('新增财务记录', 'finance', fid, '¥' + data.amount + ' ' + data.type);
+                toast('已保存', 'ok');
+            });
+        }
+
+        function loadFinanceList() {
+            supabase.from('finance_records').select('*').order('created_at', { ascending: false }).then(function(r) {
+                var tb = document.getElementById('financeTbody');
+                if (!tb) return;
+                var income = 0, expense = 0;
+                if (!r.data || r.data.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;">暂无记录</td></tr>';
+                } else {
+                    var h = '';
+                    for (var i = 0; i < r.data.length; i++) {
+                        var f = r.data[i];
+                        if (f.type === 'income') income += f.amount;
+                        else expense += f.amount;
+                        h += '<tr>';
+                        h += '<td>' + (f.created_at || '').substring(0, 10) + '</td>';
+                        h += '<td>' + (f.type === 'income'
+                            ? '<span style="color:#10b981;font-weight:600;">📈 收入</span>'
+                            : '<span style="color:#ef4444;font-weight:600;">📉 支出</span>') + '</td>';
+                        h += '<td>' + escHtml(f.category || '') + '</td>';
+                        h += '<td style="font-weight:700;">¥' + f.amount.toFixed(2) + '</td>';
+                        h += '<td>' + escHtml(f.description || '') + '</td>';
+                        h += '<td>' + escHtml(f.handler || '') + '</td>';
+                        // ===== 改动 8：删除按钮权限新增 president =====
+                        h += '<td>' + (hasRole('super_admin', 'president')
+                            ? '<button class="btn btn-danger btn-xs" onclick="deleteFin(\'' + f.id + '\')">删除</button>'
+                            : '') + '</td>';
+                        h += '</tr>';
+                    }
+                    tb.innerHTML = h;
+                }
+                var fi = document.getElementById('finIncome');
+                var fe = document.getElementById('finExpense');
+                var fb = document.getElementById('finBalance');
+                if (fi) fi.textContent = '¥' + income.toFixed(0);
+                if (fe) fe.textContent = '¥' + expense.toFixed(0);
+                if (fb) fb.textContent = '¥' + (income - expense).toFixed(0);
+            });
+        }
+
+        function deleteFin(id) {
+            if (!confirm('确定删除此财务记录？此操作不可恢复。')) return;
+            supabase.from('finance_records').delete().eq('id', id).then(function(r) {
+                if (r.error) { toast('删除失败: ' + r.error.message, 'err'); return; }
+                loadFinanceList();
+                loadStats();
+                writeLog('删除财务记录', 'finance', id, '');
+                toast('已删除', 'ok');
+            });
+        }
+
+        // ==========================================
+        // 4. 操作日志
+        // ==========================================
+        function buildLogs(container) {
+            // ===== 改动 9：buildLogs 权限新增 president =====
+            if (!hasRole('super_admin', 'president', 'admin_secretary', 'vice_president')) {
+                noPerm(container, '只有社长、行政秘书和副社长可以查看操作日志。');
+                return;
+            }
+            var html = '<div class="card"><div class="card-header"><span>操作日志（最近200条）</span></div>';
+            html += '<div class="table-wrap"><table><thead><tr><th>时间</th><th>操作人</th><th>角色</th><th>操作</th><th>详情</th></tr></thead><tbody id="logsTbody"><tr><td colspan="5" style="text-align:center;padding:32px;">加载中...</td></tr></tbody></table></div></div>';
+            container.innerHTML = html;
+            // ===== 改动 2：roleNames2 替换 =====
+            var roleNames2 = {super_admin:'超级管理员', president:'社长', admin_secretary:'行政秘书', vice_president:'副社长', author:'采访部', photographer:'摄影部', video_editor:'剪辑部', recruitment_admin:'策划部', logistics_admin:'后勤部', finance_admin:'财务部', viewer:'社员'};
+            supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(200).then(
+                function(r) {
+                    var tb = document.getElementById('logsTbody');
+                    if (!tb) return;
+                    if (!r.data || r.data.length === 0) {
+                        tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;">暂无日志</td></tr>';
+                        return;
+                    }
+                    var h = '';
+                    for (var i = 0; i < r.data.length; i++) {
+                        var l = r.data[i];
+                        h += '<tr>';
+                        h += '<td style="white-space:nowrap;">' + (l.created_at || '').substring(0, 16) + '</td>';
+                        h += '<td>' + escHtml(l.user_name || '-') + '</td>';
+                        h += '<td>' + (roleNames2[l.user_role] || l.user_role || '-') + '</td>';
+                        h += '<td>' + escHtml(l.action) + '</td>';
+                        h += '<td style="color:var(--muted);font-size:.78rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;">' + escHtml(l.detail || '') + '</td>';
+                        h += '</tr>';
+                    }
+                    tb.innerHTML = h;
+                }
+            );
+        }
+
+        // ==========================================
+        // 5. 网站设置
+        // ===== 改动 10：buildSettings 权限保持 super_admin 专有，不加 president =====
+        // ==========================================
+        function buildSettings(container) {
+            if (!hasRole('super_admin')) {
+                noPerm(container, '只有超级管理员可以修改网站设置。');
+                return;
+            }
+            var html = '<p style="color:var(--muted);margin-bottom:18px;">修改首页统计数字和报名开关，保存后即时生效。</p>';
+            html += '<div class="toggle-row"><div><strong>📢 招新报名通道</strong><p style="color:var(--muted);font-size:.82rem;margin:0;">关闭后招新页面显示"报名已截止"</p></div><button id="toggleRecruitment" class="toggle-big" onclick="toggleRecruitment()" style="background:#94a3b8;">检查中...</button></div>';
+            html += '<div class="settings-grid">';
+            html += '<div class="setting-card"><label>社团历史</label><input type="number" id="setHistory" value="1" min="0"><span style="font-size:.75rem;color:var(--muted);">年</span></div>';
+            html += '<div class="setting-card"><label>培养成员</label><input type="number" id="setMembers" value="200" min="0"><span style="font-size:.75rem;color:var(--muted);">人</span></div>';
+            html += '<div class="setting-card"><label>发表稿件</label><input type="number" id="setArticles" value="500" min="0"><span style="font-size:.75rem;color:var(--muted);">篇</span></div>';
+            html += '<div class="setting-card"><label>获得奖项</label><input type="number" id="setAwards" value="30" min="0"><span style="font-size:.75rem;color:var(--muted);">项</span></div>';
+            html += '</div>';
+            html += '<button class="btn btn-blue" onclick="saveSettings()">💾 保存设置</button><span id="settingsMsg" style="margin-left:12px;font-size:.85rem;color:var(--green);"></span>';
+            container.innerHTML = html;
+            loadSettings();
+        }
+
+        function loadSettings() {
+            supabase.from('settings').select('key,value').then(function(r) {
+                if (r.error || !r.data) {
+                    document.getElementById('setHistory').value = '1';
+                    document.getElementById('setMembers').value = '200';
+                    document.getElementById('setArticles').value = '500';
+                    document.getElementById('setAwards').value = '30';
+                    updateToggle(true);
+                    return;
+                }
+                var map = {};
+                for (var i = 0; i < r.data.length; i++) {
+                    map[r.data[i].key] = r.data[i].value;
+                }
+                document.getElementById('setHistory').value = map.stat_history || '1';
+                document.getElementById('setMembers').value = map.stat_members || '200';
+                document.getElementById('setArticles').value = map.stat_articles || '500';
+                document.getElementById('setAwards').value = map.stat_awards || '30';
+                updateToggle(map.recruitment_open !== 'false');
+            });
+        }
+
+        function updateToggle(open) {
+            var b = document.getElementById('toggleRecruitment');
+            if (!b) return;
+            b.textContent = open ? '🟢 报名进行中' : '🔴 报名已关闭';
+            b.style.background = open ? '#10b981' : '#ef4444';
+            b.dataset.open = open ? 'true' : 'false';
+        }
+
+        function toggleRecruitment() {
+            var b = document.getElementById('toggleRecruitment');
+            if (!b) return;
+            var isOpen = b.dataset.open === 'true';
+            supabase.from('settings').upsert({ key: 'recruitment_open', value: isOpen ? 'false' : 'true' }).then(
+                function(r) {
+                    if (r.error) { toast('切换失败', 'err'); return; }
+                    updateToggle(!isOpen);
+                    writeLog('切换报名通道', 'settings', '', isOpen ? '关闭' : '开启');
+                    toast(isOpen ? '已关闭报名通道' : '已开启报名通道', 'ok');
+                }
+            );
+        }
+
+        function saveSettings() {
+            var data = [
+                { key: 'stat_history',  value: document.getElementById('setHistory').value },
+                { key: 'stat_members',  value: document.getElementById('setMembers').value },
+                { key: 'stat_articles', value: document.getElementById('setArticles').value },
+                { key: 'stat_awards',   value: document.getElementById('setAwards').value }
+            ];
+            var promises = [];
+            for (var i = 0; i < data.length; i++) {
+                promises.push(supabase.from('settings').upsert(data[i]));
+            }
+            Promise.all(promises).then(function() {
+                var msgEl = document.getElementById('settingsMsg');
+                if (msgEl) {
+                    msgEl.textContent = '✅ 已保存';
+                    setTimeout(function() { msgEl.textContent = ''; }, 3000);
+                }
+                writeLog('修改首页设置', 'settings', '', '');
+                toast('设置已保存', 'ok');
+            }).catch(function(err) {
+                toast('保存失败: ' + ((err && err.message) || '未知错误'), 'err');
+            });
+        }
+
+        // ==========================================
+        // 6. 成员管理
+        // ===== 改动 11：buildMembers 权限保持 super_admin 专有，不加 president =====
+        // ==========================================
+        function buildMembers(container) {
+            if (!hasRole('super_admin')) {
+                noPerm(container, '只有超级管理员可以管理成员权限。');
+                return;
+            }
+            var html = '<div class="card"><div class="card-header"><span>成员权限管理</span></div>';
+            html += '<div class="table-wrap"><table><thead><tr><th>用户ID</th><th>姓名</th><th>部门</th><th>当前角色</th><th>更改角色</th></tr></thead><tbody id="membersTbody"><tr><td colspan="5" style="text-align:center;padding:32px;">加载中...</td></tr></tbody></table></div></div>';
+            container.innerHTML = html;
+            loadMembers();
+        }
+
+        function loadMembers() {
+            // ===== 改动 12：roles 数组新增 president =====
+            var roles = [
+                { v: 'super_admin', l: '👑 超级管理员' },
+                { v: 'president', l: '👔 社长' },
+                { v: 'admin_secretary', l: '📋 行政秘书' },
+                { v: 'vice_president', l: '🏠 副社长' },
+                { v: 'author', l: '📝 采访部' },
+                { v: 'photographer', l: '📸 摄影部' },
+                { v: 'video_editor', l: '🎬 剪辑部' },
+                { v: 'recruitment_admin', l: '📢 策划部' },
+                { v: 'logistics_admin', l: '🔧 后勤部' },
+                { v: 'finance_admin', l: '💰 财务部' },
+                { v: 'viewer', l: '👁️ 普通社员' }
+            ];
+            supabase.from('profiles').select('*').order('created_at', { ascending: false }).then(function(r) {
+                var tb = document.getElementById('membersTbody');
+                if (!tb) return;
+                if (!r.data || r.data.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;">暂无成员</td></tr>';
+                    return;
+                }
+                var h = '';
+                for (var i = 0; i < r.data.length; i++) {
+                    var m = r.data[i];
+                    var curLabel = '';
+                    for (var j = 0; j < roles.length; j++) {
+                        if (roles[j].v === m.role) { curLabel = roles[j].l; break; }
+                    }
+                    h += '<tr>';
+                    h += '<td style="font-size:.75rem;font-family:monospace;" title="' + escAttr(m.id) + '">' + escHtml(m.id.substring(0, 16)) + '...</td>';
+                    h += '<td>' + escHtml(m.display_name || '-') + '</td>';
+                    h += '<td>' + escHtml(m.department || '-') + '</td>';
+                    h += '<td>' + curLabel + '</td>';
+                    h += '<td><select onchange="changeRole(\'' + m.id + '\',this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;font-size:.8rem;max-width:140px;">';
+                    for (var k = 0; k < roles.length; k++) {
+                        h += '<option value="' + roles[k].v + '"' + (m.role === roles[k].v ? ' selected' : '') + '>' + roles[k].l + '</option>';
+                    }
+                    h += '</select></td>';
+                    h += '</tr>';
+                }
+                tb.innerHTML = h;
+            });
+        }
+
+        function changeRole(uid, newRole) {
+            if (!confirm('确定修改此成员的角色？')) {
+                loadMembers();
+                return;
+            }
+            supabase.from('profiles').update({ role: newRole }).eq('id', uid).then(function(r) {
+                if (r.error) {
+                    toast('修改失败: ' + r.error.message, 'err');
+                    loadMembers();
+                    return;
+                }
+                toast('角色已更新', 'ok');
+                writeLog('修改成员角色', 'profile', uid, newRole);
+                if (uid === currentUser.id) {
+                    loadProfile(uid);
+                }
+                loadMembers();
+            });
+        }
+
+        // ===== 登录 / 登出 =====
+        function doLogin() {
+            var email = document.getElementById('loginEmail').value.trim();
+            var password = document.getElementById('loginPassword').value;
+            if (!email || !password) {
+                toast('请输入邮箱和密码', 'err');
+                return;
+            }
+            var btn = document.querySelector('.btn-login');
+            if (!btn) return;
+            btn.disabled = true;
+            btn.textContent = '登录中...';
+            supabase.auth.signInWithPassword({ email: email, password: password }).then(function(r) {
+                btn.disabled = false;
+                btn.textContent = '登 录';
+                if (r.error) {
+                    toast('登录失败: ' + r.error.message, 'err');
+                    return;
+                }
+                loadProfile(r.data.user.id);
+            }).catch(function(err) {
+                btn.disabled = false;
+                btn.textContent = '登 录';
+                toast('网络错误，请重试', 'err');
+            });
+        }
+
+        function doLogout() {
+            if (!confirm('确定退出登录？')) return;
+            supabase.auth.signOut().then(function() {
+                location.reload();
+            });
+        }
+
+        // ===== Toast =====
+        function toast(msg, type) {
+            var old = document.querySelector('.toast');
+            if (old) old.remove();
+            var t = document.createElement('div');
+            t.className = 'toast ' + (type || 'ok');
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(function() {
+                t.style.opacity = '0';
+                t.style.transition = 'opacity .3s';
+                setTimeout(function() { if (t.parentNode) t.remove(); }, 300);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

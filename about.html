@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于记者社 - 岳阳县二中学生记者社</title>
+    <style>
+        :root {
+            --blue-900:#142D52;--blue-700:#1E4D8C;--blue-500:#2B6CB0;--blue-50:#EDF4FB;
+            --coral-500:#E2584A;--gold-500:#F0A04B;
+            --gray-900:#1A1A1A;--gray-700:#4A4A4A;--gray-500:#888;--gray-100:#F0EFED;--gray-50:#FAF8F5;
+            --color-bg:var(--gray-50);--color-surface:#fff;--color-text:var(--gray-900);
+            --color-text-soft:var(--gray-700);--color-text-muted:var(--gray-500);--color-border:var(--gray-100);
+            --text-xs:.75rem;--text-sm:.875rem;--text-base:1rem;--text-lg:1.125rem;
+            --text-xl:1.25rem;--text-2xl:1.5rem;--text-3xl:2rem;--text-4xl:2.5rem;
+            --space-sm:8px;--space-md:16px;--space-lg:24px;--space-xl:32px;--space-2xl:48px;--space-3xl:64px;
+            --radius-md:10px;--radius-lg:16px;--radius-full:9999px;
+            --shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.06);
+            --shadow-lg:0 12px 32px rgba(0,0,0,.08);
+            --ease-out:cubic-bezier(.16,1,.3,1);--duration:.3s;--nav-height:64px;--max-width:900px;
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth;font-size:16px}
+        body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,sans-serif;color:var(--color-text);background:var(--color-bg);line-height:1.85;-webkit-font-smoothing:antialiased}
+        a{color:inherit;text-decoration:none}ul{list-style:none}button{font-family:inherit;cursor:pointer}
+        .container{max-width:var(--max-width);margin:0 auto;padding:0 var(--space-lg)}
+        .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-height);background:rgba(15,35,71,.95)}
+        .nav-container{max-width:1200px;margin:0 auto;padding:0 var(--space-lg);height:100%;display:flex;align-items:center;justify-content:space-between}
+        .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:var(--text-base);color:#fff}
+        .logo-mark{width:36px;height:36px;border-radius:var(--radius-md);flex-shrink:0;overflow:hidden}
+        .logo-mark img{width:100%;height:100%;object-fit:cover;display:block}
+        .nav-menu{display:flex;align-items:center;gap:2px}
+        .nav-link{padding:8px 14px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:500;color:rgba(255,255,255,.85);transition:all .15s}
+        .nav-link:hover{color:#fff;background:rgba(255,255,255,.12)}
+        .nav-link.active{color:#fff;background:rgba(255,255,255,.18);font-weight:600}
+        .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;padding:8px 18px;font-weight:600;margin-left:6px}
+        .nav-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:8px;cursor:pointer;z-index:1001}
+        .nav-toggle span{display:block;width:24px;height:2.5px;background:#fff;border-radius:2px}
+        .nav-toggle.active span:nth-child(1){transform:translateY(7px)rotate(45deg)}
+        .nav-toggle.active span:nth-child(2){opacity:0}
+        .nav-toggle.active span:nth-child(3){transform:translateY(-7px)rotate(-45deg)}
+        .page-header{padding:140px 0 56px;background:linear-gradient(160deg,#0F2347,#1E4D8C);color:#fff;text-align:center;position:relative;overflow:hidden}
+        .page-header::before{content:'';position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(240,160,75,.18),transparent 70%);top:-70px;right:-70px;animation:floatOrb1 12s ease-in-out infinite;z-index:0}
+        .page-header::after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(226,88,74,.12),transparent 70%);bottom:-50px;left:-50px;animation:floatOrb2 14s ease-in-out infinite reverse;z-index:0}
+        @keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(35px,-25px) scale(1.15)}66%{transform:translate(-20px,20px) scale(.9)}}
+        @keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-30px,20px) scale(1.1)}66%{transform:translate(25px,-15px) scale(.85)}}
+        .page-header h1{font-size:var(--text-4xl);font-weight:800;margin-bottom:var(--space-sm);position:relative;z-index:1;animation:fadeInDown .6s var(--ease-out) both}
+        .page-header p{font-size:var(--text-lg);opacity:0;position:relative;z-index:1;animation:fadeInUp .6s .15s var(--ease-out) forwards}
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .content-section{max-width:var(--max-width);margin:0 auto;padding:var(--space-3xl) var(--space-lg)}
+        .content-section h2{font-size:var(--text-2xl);font-weight:700;color:var(--blue-900);margin:var(--space-2xl) 0 var(--space-md);padding-bottom:var(--space-sm);border-bottom:2px solid var(--blue-50)}
+        .content-section h2:first-child{margin-top:0}
+        .content-section p{margin-bottom:var(--space-md);color:var(--text-soft)}
+        .content-section strong{color:var(--gray-900)}
+        .highlight-box{background:var(--blue-50);border-radius:var(--radius-lg);padding:var(--space-xl);margin:var(--space-lg) 0;border-left:4px solid var(--blue-500);animation:slideUp .5s .2s var(--ease-out) both}
+        .highlight-box p{margin-bottom:var(--space-sm)}
+        @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        .org-chart{display:flex;flex-direction:column;align-items:center;gap:var(--space-lg);margin:var(--space-xl) 0;animation:slideUp .5s .3s var(--ease-out) both}
+        .org-level{display:flex;gap:var(--space-md);flex-wrap:wrap;justify-content:center}
+        .org-node{background:var(--color-surface);border:2px solid var(--blue-200);border-radius:var(--radius-lg);padding:var(--space-md) var(--space-lg);text-align:center;min-width:100px;transition:all var(--duration)}
+        .org-node:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+        .org-node.top{border-color:var(--blue-500);background:var(--blue-50);min-width:130px}
+        .org-node.exec{border-color:var(--gold-500);background:#FFFCF5}
+        .org-node h5{font-size:var(--text-sm);font-weight:700;color:var(--blue-900);margin-bottom:2px}
+        .org-node span{font-size:var(--text-xs);color:var(--text-muted)}
+        .org-line{width:2px;height:24px;background:var(--blue-200)}
+        .dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-md);margin:var(--space-lg) 0;animation:slideUp .5s .4s var(--ease-out) both}
+        .dept-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-lg);text-align:center;transition:all var(--duration) var(--ease-out)}
+        .dept-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--blue-200)}
+        .dept-card .dept-icon{font-size:2rem;margin-bottom:var(--space-sm);transition:transform var(--duration) var(--ease-out)}
+        .dept-card:hover .dept-icon{transform:scale(1.2)}
+        .dept-card h4{font-size:var(--text-sm);font-weight:700;margin-bottom:4px;color:var(--gray-900)}
+        .dept-card p{font-size:var(--text-xs);color:var(--text-muted);line-height:1.4;margin:0}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;border-radius:var(--radius-full);font-size:var(--text-base);font-weight:700;background:var(--coral-500);color:#fff;box-shadow:0 2px 12px rgba(226,88,74,.3);transition:all var(--duration);border:none;cursor:pointer}
+        .btn:hover{background:#D14A3E;transform:translateY(-2px);box-shadow:0 6px 24px rgba(226,88,74,.4)}
+        .rule-links{text-align:center;margin-top:var(--space-2xl);padding:var(--space-xl);background:var(--blue-50);border-radius:var(--radius-lg);animation:slideUp .5s .5s var(--ease-out) both}
+        .rule-links a{display:inline-block;padding:10px 20px;margin:4px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;background:#fff;color:var(--blue-700);border:1px solid var(--blue-200);transition:all var(--duration)}
+        .rule-links a:hover{background:var(--blue-50);border-color:var(--blue-500)}
+        .footer{background:var(--blue-900);color:rgba(255,255,255,.7);padding:var(--space-3xl) 0 var(--space-lg);text-align:center}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:var(--space-lg);font-size:var(--text-xs);color:rgba(255,255,255,.35)}
+        @media(max-width:768px){
+            .nav-toggle{display:flex}
+            .nav-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);flex-direction:column;align-items:center;justify-content:center;gap:var(--space-md);z-index:1000;padding:var(--space-xl)}
+            .nav-menu.active{display:flex}
+            .nav-menu .nav-link{font-size:var(--text-lg);color:var(--gray-700)!important;padding:12px 24px}
+            .nav-menu .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;margin-left:0}
+            .dept-grid{grid-template-columns:repeat(2,1fr)}
+            .page-header h1{font-size:2rem}
+        }
+        @media(max-width:480px){.dept-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-mark"><img src="https://s41.ax1x.com/2026/07/05/pm0HYZV.png" alt="记者社"></div>
+                <span>岳阳县二中学生记者社</span>
+            </a>
+            <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="news.html" class="nav-link">校园新闻</a></li>
+                <li><a href="recruitment.html" class="nav-link nav-cta">🔥 加入我们</a></li>
+                <li><a href="about.html" class="nav-link active">关于记者社</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="page-header"><h1>📖 关于记者社</h1><p>了解我们的组织、使命与故事</p></div>
+    <div class="content-section">
+        <h2>🏫 社团简介</h2>
+        <p>岳阳县第二中学学生记者社成立于<strong>2025年</strong>，是在学校办公室指导下，由热爱新闻、写作、摄影、宣传工作的在校学生自愿组成的非营利性校园文化社团。</p>
+        <p>我们秉持<strong>"真实记录、客观传播、服务校园、锻炼自我"</strong>的理念，聚焦校园生活、传播校园正能量、搭建师生沟通桥梁，致力于提升社员的新闻素养与综合能力。</p>
+        <div class="highlight-box">
+            <p>🏆 被评为<strong>校级优秀社团</strong></p>
+            <p>📝 累计发表校园新闻稿件<strong>500余篇</strong></p>
+            <p>📰 多篇稿件被<strong>市级媒体</strong>转载</p>
+            <p>🎉 成功举办<strong>多届校园记者节</strong></p>
+        </div>
+        <h2>🏛️ 组织架构</h2>
+        <p>记者社设指导老师一名，由学校聘请具有相关专业能力或管理经验的教师担任。核心管理层包括社长、行政秘书、副社长，下设六大职能部门。</p>
+        <div class="org-chart">
+            <div class="org-node top"><h5>👤 指导老师</h5><span>学校聘任</span></div>
+            <div class="org-line"></div>
+            <div class="org-node top"><h5>👑 社长</h5><span>1名 · 统筹全面工作</span></div>
+            <div class="org-line"></div>
+            <div class="org-level">
+                <div class="org-node exec"><h5>📋 行政秘书</h5><span>2名</span></div>
+                <div class="org-node exec"><h5>📋 副社长</h5><span>5名</span></div>
+            </div>
+            <div class="org-line"></div>
+            <div class="org-level">
+                <div class="org-node"><h5>📝 采访部</h5></div>
+                <div class="org-node"><h5>📸 摄影部</h5></div>
+                <div class="org-node"><h5>✂️ 剪辑部</h5></div>
+                <div class="org-node"><h5>💡 策划部</h5></div>
+                <div class="org-node"><h5>🔧 后勤部</h5></div>
+                <div class="org-node"><h5>💰 财务部</h5></div>
+            </div>
+        </div>
+        <h2>📋 部门介绍</h2>
+        <div class="dept-grid">
+            <div class="dept-card"><div class="dept-icon">📝</div><h4>采访部</h4><p>校园新闻采访、稿件撰写、素材收集</p></div>
+            <div class="dept-card"><div class="dept-icon">📸</div><h4>摄影部</h4><p>活动宣传、新媒体运营、摄影摄像</p></div>
+            <div class="dept-card"><div class="dept-icon">✂️</div><h4>剪辑部</h4><p>稿件审核、修改排版、内容编辑</p></div>
+            <div class="dept-card"><div class="dept-icon">💡</div><h4>策划部</h4><p>社员招募、考勤档案、活动策划</p></div>
+            <div class="dept-card"><div class="dept-icon">🔧</div><h4>后勤部</h4><p>社团后勤保障与物资管理</p></div>
+            <div class="dept-card"><div class="dept-icon">💰</div><h4>财务部</h4><p>社团经费管理与财务公示</p></div>
+        </div>
+        <h2>🔄 换届选举</h2>
+        <p>管理层<strong>每学年换届一次</strong>，在学年末召开社员大会进行民主选举。候选人需具备良好品德、较强责任心及相关业务能力，经社员推荐或自我推荐产生。选举结果报学校办公室备案后生效，任期一年，可连选连任（不超过两届）。</p>
+        <h2>🎯 主要活动</h2>
+        <p><strong>业务培训：</strong>新闻写作、采访技巧、摄影摄像、排版编辑等专题培训，帮助社员提升专业技能。</p>
+        <p><strong>实践活动：</strong>校园新闻采访、校园事件报道、人物专访、校园刊物编辑发行、新媒体内容创作、校园宣传活动策划等。</p>
+        <p><strong>交流活动：</strong>与其他学校学生记者社交流、邀请媒体从业者讲座、优秀作品评选等，拓展社员视野。</p>
+        <div class="rule-links">
+            <p style="margin-bottom:var(--space-md);font-weight:600;color:var(--blue-900);">📜 了解更多规章制度</p>
+            <a href="charter.html">社团章程</a>
+            <a href="obligations.html">义务与纪律</a>
+            <a href="rewards.html">奖惩制度</a>
+        </div>
+        <div style="text-align:center;margin-top:var(--space-2xl);">
+            <a href="recruitment.html" class="btn">🔥 加入我们</a>
+        </div>
+    </div>
+    <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 岳阳县二中学生记者社</p></div></div></footer>
+    <script>
+        var navToggle=document.getElementById('navToggle'),navMenu=document.getElementById('navMenu');
+        navToggle.addEventListener('click',function(){navToggle.classList.toggle('active');navMenu.classList.toggle('active')});
+        navMenu.querySelectorAll('.nav-link').forEach(function(l){l.addEventListener('click',function(){navMenu.classList.remove('active');navToggle.classList.remove('active')})});
+    </script>
+</body>
+</html>

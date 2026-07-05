@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奖惩制度 - 岳阳县二中学生记者社</title>
+    <style>
+        :root {
+            --blue-900:#142D52;--blue-700:#1E4D8C;--blue-500:#2B6CB0;--blue-50:#EDF4FB;
+            --coral-500:#E2584A;--green-500:#059669;
+            --gray-900:#1A1A1A;--gray-700:#4A4A4A;--gray-500:#888;--gray-100:#F0EFED;--gray-50:#FAF8F5;
+            --color-bg:var(--gray-50);--color-surface:#fff;--color-text:var(--gray-900);
+            --color-text-soft:var(--gray-700);--color-border:var(--gray-100);
+            --text-xs:.75rem;--text-sm:.875rem;--text-base:1rem;--text-lg:1.125rem;
+            --text-xl:1.25rem;--text-2xl:1.5rem;--text-3xl:2rem;
+            --space-sm:8px;--space-md:16px;--space-lg:24px;--space-xl:32px;--space-2xl:48px;--space-3xl:64px;
+            --radius-md:10px;--radius-lg:16px;--radius-full:9999px;
+            --shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.06);
+            --ease-out:cubic-bezier(.16,1,.3,1);--duration:.3s;--nav-height:64px;--max-width:900px;
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth;font-size:16px}
+        body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,sans-serif;color:var(--color-text);background:var(--color-bg);line-height:1.85;-webkit-font-smoothing:antialiased}
+        a{color:inherit;text-decoration:none}ul{list-style:none}button{font-family:inherit;cursor:pointer}
+        .container{max-width:var(--max-width);margin:0 auto;padding:0 var(--space-lg)}
+        .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-height);background:rgba(15,35,71,.95)}
+        .nav-container{max-width:1200px;margin:0 auto;padding:0 var(--space-lg);height:100%;display:flex;align-items:center;justify-content:space-between}
+        .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:var(--text-base);color:#fff}
+        .logo-mark{width:36px;height:36px;border-radius:var(--radius-md);flex-shrink:0;overflow:hidden}
+        .logo-mark img{width:100%;height:100%;object-fit:cover;display:block}
+        .nav-menu{display:flex;align-items:center;gap:2px}
+        .nav-link{padding:8px 14px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:500;color:rgba(255,255,255,.85);transition:all .15s}
+        .nav-link:hover{color:#fff;background:rgba(255,255,255,.12)}
+        .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;padding:8px 18px;font-weight:600;margin-left:6px}
+        .nav-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:8px;cursor:pointer;z-index:1001}
+        .nav-toggle span{display:block;width:24px;height:2.5px;background:#fff;border-radius:2px}
+        .nav-toggle.active span:nth-child(1){transform:translateY(7px)rotate(45deg)}
+        .nav-toggle.active span:nth-child(2){opacity:0}
+        .nav-toggle.active span:nth-child(3){transform:translateY(-7px)rotate(-45deg)}
+        .page-header{padding:140px 0 56px;background:linear-gradient(160deg,#0F2347,#1E4D8C);color:#fff;text-align:center;position:relative;overflow:hidden}
+        .page-header::before{content:'';position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(240,160,75,.18),transparent 70%);top:-70px;right:-70px;animation:floatOrb1 12s ease-in-out infinite;z-index:0}
+        .page-header::after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(226,88,74,.12),transparent 70%);bottom:-50px;left:-50px;animation:floatOrb2 14s ease-in-out infinite reverse;z-index:0}
+        @keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(35px,-25px) scale(1.15)}66%{transform:translate(-20px,20px) scale(.9)}}
+        @keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-30px,20px) scale(1.1)}66%{transform:translate(25px,-15px) scale(.85)}}
+        .page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:var(--space-sm);position:relative;z-index:1;animation:fadeInDown .6s var(--ease-out) both}
+        .page-header p{font-size:var(--text-lg);opacity:0;position:relative;z-index:1;animation:fadeInUp .6s .15s var(--ease-out) forwards}
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .content-section{max-width:var(--max-width);margin:0 auto;padding:var(--space-3xl) var(--space-lg)}
+        .content-section h2{font-size:var(--text-2xl);font-weight:700;color:var(--blue-900);margin:var(--space-2xl) 0 var(--space-md);padding-bottom:var(--space-sm);border-bottom:2px solid var(--blue-50)}
+        .content-section h2:first-child{margin-top:0}
+        .content-section h3{font-size:var(--text-lg);font-weight:700;color:var(--blue-700);margin:var(--space-lg) 0 var(--space-sm)}
+        .content-section p{margin-bottom:var(--space-md);color:var(--text-soft)}
+        .content-section ul{margin-bottom:var(--space-md);padding-left:var(--space-lg)}
+        .content-section li{margin-bottom:6px;color:var(--text-soft);font-size:var(--text-sm);position:relative;padding-left:8px}
+        .content-section li::before{content:'•';position:absolute;left:-12px;color:var(--green-500)}
+        .content-section li.penalty::before{color:var(--coral-500)}
+        .content-section strong{color:var(--gray-900)}
+        .reward-box{background:#ECFDF5;border:1px solid rgba(5,150,105,.2);border-radius:var(--radius-lg);padding:var(--space-xl);margin:var(--space-lg) 0;border-left:4px solid var(--green-500)}
+        .penalty-box{background:#FFF7ED;border:1px solid rgba(234,88,12,.2);border-radius:var(--radius-lg);padding:var(--space-xl);margin:var(--space-lg) 0;border-left:4px solid var(--coral-500)}
+        .btn-row{display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap;margin-top:var(--space-xl)}
+        .back-link{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;background:var(--blue-50);color:var(--blue-700);transition:all var(--duration)}
+        .back-link:hover{background:var(--blue-500);color:#fff}
+        .back-link.primary{background:var(--coral-500);color:#fff}
+        .back-link.primary:hover{background:#D14A3E}
+        .footer{background:var(--blue-900);color:rgba(255,255,255,.7);padding:var(--space-3xl) 0 var(--space-lg);text-align:center}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:var(--space-lg);font-size:var(--text-xs);color:rgba(255,255,255,.35)}
+        @media(max-width:768px){
+            .nav-toggle{display:flex}
+            .nav-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);flex-direction:column;align-items:center;justify-content:center;gap:var(--space-md);z-index:1000;padding:var(--space-xl)}
+            .nav-menu.active{display:flex}
+            .nav-menu .nav-link{font-size:var(--text-lg);color:var(--gray-700)!important;padding:12px 24px}
+            .nav-menu .nav-link.nav-cta{background:var(--coral-500)!important;color:#fff!important;margin-left:0}
+            .page-header h1{font-size:2rem}
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-mark"><img src="https://s41.ax1x.com/2026/07/05/pm0HYZV.png" alt="记者社"></div>
+                <span>岳阳县二中学生记者社</span>
+            </a>
+            <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="news.html" class="nav-link">校园新闻</a></li>
+                <li><a href="recruitment.html" class="nav-link nav-cta">🔥 加入我们</a></li>
+                <li><a href="about.html" class="nav-link">关于记者社</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="page-header"><h1>🏅 奖惩制度</h1><p>岳阳县二中学生记者社</p></div>
+    <div class="content-section">
+        <h2>一、奖励制度</h2>
+        <p><strong>奖励原则：</strong>公平、公正、公开，以精神奖励为主、物质奖励为辅，结合社员表现综合评定。</p>
+        <h3>（一）奖励类型及条件</h3>
+        <div class="reward-box"><p><strong>🏆 优秀社员</strong></p><ul><li>一学期内考勤全勤，无迟到、早退、缺席记录；</li><li>积极参与社团活动，表现突出，按时高质量完成各项任务；</li><li>业务能力强，作品质量高，有1篇以上作品在校级及以上平台发表或获奖；</li><li>遵守社团章程及纪律，团结社员，积极为社团发展贡献力量。</li></ul></div>
+        <div class="reward-box"><p><strong>💼 优秀工作者</strong></p><ul><li>担任社团管理层或部门负责人，认真履行管理职责，高效完成统筹、协调、组织等工作；</li><li>对社团活动策划、业务培训、品牌建设等有重要贡献，得到社员及指导老师认可。</li></ul></div>
+        <div class="reward-box"><p><strong>📝 优秀作品奖</strong></p><ul><li>稿件类：在校级及以上刊物、媒体平台发表，或在各类征文、新闻评选中获奖；</li><li>摄影/视频类：在校园宣传中发挥重要作用，或在相关评选中获奖；</li><li>编辑类：负责的刊物、新媒体内容质量高，反响良好。</li></ul></div>
+        <div class="reward-box"><p><strong>🙋 积极参与奖</strong></p><ul><li>一学期内参与社团活动出勤率达90%以上；</li><li>主动参与社团各项工作，表现积极，虽未取得显著成果但态度认真。</li></ul></div>
+        <h3>（二）奖励方式</h3>
+        <ul><li>颁发校级或社团荣誉证书（优秀社员、优秀工作者等）；</li><li>在校园公告栏、社团新媒体平台进行表彰；</li><li>物质奖励（书籍、文具、摄影器材配件等）；</li><li>优先获得外出交流、专业培训、实习实践等机会；</li><li>综合素质评价中予以相应加分，报学校德育处备案。</li></ul>
+        <h3>（三）评选流程</h3>
+        <ul><li><strong>1.</strong> 每学期末开展评选，由社员自荐、部门推荐或指导老师提名；</li><li><strong>2.</strong> 管理层审核候选人资格，组织社员进行民主投票；</li><li><strong>3.</strong> 结合投票结果及指导老师意见，确定获奖名单；</li><li><strong>4.</strong> 公示3个工作日无异议后，正式表彰。</li></ul>
+        <h2>二、处分制度</h2>
+        <p><strong>处分原则：</strong>以教育为主、惩戒为辅，根据违纪情节轻重予以相应处分，处分结果记入社员档案。</p>
+        <div class="penalty-box"><p><strong>⚠️ 口头警告</strong></p><ul><li class="penalty">无故迟到、早退1次；</li><li class="penalty">首次轻微拖延工作任务，经提醒后及时完成；</li><li class="penalty">活动中言行不当，影响较小。</li></ul></div>
+        <div class="penalty-box"><p><strong>📄 书面警告</strong></p><ul><li class="penalty">无故迟到、早退累计2次；</li><li class="penalty">无故缺席活动1次；</li><li class="penalty">拖延工作任务累计2次；</li><li class="penalty">首次出现稿件抄袭、素材篡改等行为，未造成不良影响；</li><li class="penalty">扰乱活动秩序，经劝阻后改正。</li></ul></div>
+        <div class="penalty-box"><p><strong>🚪 劝退</strong></p><ul><li class="penalty">无故缺席活动累计2次；</li><li class="penalty">书面警告后再次违反同一纪律；</li><li class="penalty">工作成果多次不合格，经培训后仍无改进；</li><li class="penalty">泄露社团重要信息，造成一定不良影响；</li><li class="penalty">与社员发生严重冲突，影响社团团结。</li></ul></div>
+        <div class="penalty-box"><p><strong>❌ 除名</strong></p><ul><li class="penalty">无故缺席活动累计3次及以上；</li><li class="penalty">严重违反学校规章制度或国家法律法规；</li><li class="penalty">挪用、侵占社团经费或公共财物；</li><li class="penalty">编造虚假新闻、传播不实信息，造成严重不良影响；</li><li class="penalty">对社团造成重大损失或严重损害社团声誉。</li></ul></div>
+        <h3>处分流程</h3>
+        <ul><li class="penalty"><strong>1.</strong> 发现违纪行为后，由所在部门负责人核实情况，提交书面说明；</li><li class="penalty"><strong>2.</strong> 管理层召开会议，根据违纪情节确定处分等级；</li><li class="penalty"><strong>3.</strong> 书面警告及以上处分需告知社员本人，听取其陈述和申辩；</li><li class="penalty"><strong>4.</strong> 处分结果报指导老师及学校德育处备案，书面警告及以上处分需公示3个工作日；</li><li class="penalty"><strong>5.</strong> 社员对处分有异议的，可在公示期内向指导老师提交书面申诉，由指导老师组织复核。</li></ul>
+        <h3>处分撤销</h3>
+        <ul><li>受口头警告、书面警告处分的社员，在后续一学期内表现良好，无再次违纪行为，可向管理层申请撤销处分。管理层审核通过后，撤销处分并更新社员档案。</li></ul>
+        <p style="text-align:center;color:var(--gray-500);font-size:var(--text-sm);margin-top:var(--space-xl);">以上制度围绕校园社团管理的核心需求制定，保障社员权利与义务。</p>
+        <div class="btn-row">
+            <a href="obligations.html" class="back-link">← 社员义务与纪律</a>
+            <a href="recruitment.html" class="back-link primary">🔥 立即报名</a>
+        </div>
+    </div>
+    <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 岳阳县二中学生记者社</p></div></div></footer>
+    <script>
+        var navToggle=document.getElementById('navToggle'),navMenu=document.getElementById('navMenu');
+        navToggle.addEventListener('click',function(){navToggle.classList.toggle('active');navMenu.classList.toggle('active')});
+        navMenu.querySelectorAll('.nav-link').forEach(function(l){l.addEventListener('click',function(){navMenu.classList.remove('active');navToggle.classList.remove('active')})});
+    </script>
+</body>
+</html>
