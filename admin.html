@@ -325,13 +325,11 @@
             supabase.from('articles').select('id',{count:'exact'}).then(function(r){document.getElementById('sArticles').textContent=r.count||0;});
             supabase.from('recruitment').select('id',{count:'exact'}).then(function(r){document.getElementById('sTotal').textContent=r.count||0;});
             supabase.from('recruitment').select('id',{count:'exact'}).eq('status','pending').then(function(r){document.getElementById('sPending').textContent=r.count||0;});
-            if(hasRole('super_admin','president','finance_admin')){
-                supabase.from('finance_records').select('amount,type').then(function(r){
-                    var income=0,expense=0;
-                    if(r.data)for(var i=0;i<r.data.length;i++){if(r.data[i].type==='income')income+=r.data[i].amount;else expense+=r.data[i].amount;}
-                    document.getElementById('sBalance').textContent='¥'+(income-expense).toFixed(0);
-                });
-            }else{document.getElementById('sBalance').textContent='-';}
+            supabase.from('finance_records').select('amount,type').then(function(r){
+    var income=0,expense=0;
+    if(r.data)for(var i=0;i<r.data.length;i++){if(r.data[i].type==='income')income+=r.data[i].amount;else expense+=r.data[i].amount;}
+    document.getElementById('sBalance').textContent='¥'+(income-expense).toFixed(0);
+});
         }
 
         function writeLog(action,targetType,targetId,detail){
