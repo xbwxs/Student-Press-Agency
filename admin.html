@@ -818,30 +818,59 @@ function toggleRecruitment(){
             });
         }
         function loadMembers(){
-            var roles=[{v:'super_admin',l:'👑 超级管理员'},{v:'president',l:'👔 社长'},{v:'admin_secretary',l:'📋 行政秘书'},{v:'vice_president',l:'🏠 副社长'},{v:'author',l:'📝 采访部'},{v:'photographer',l:'📸 摄影部'},{v:'video_editor',l:'🎬 剪辑部'},{v:'recruitment_admin',l:'📢 策划部'},{v:'logistics_admin',l:'🔧 后勤部'},{v:'finance_admin',l:'💰 财务部'},{v:'viewer',l:'👁️ 普通社员'}];
-            supabase.from('profiles').select('*').order('created_at',{ascending:false}).then(function(r){
-                var tb=document.getElementById('membersTbody');if(!tb)return;
-                // ✅ 修复
-if(!r.data||r.data.length===0){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;">暂无成员</td></tr>';return;}
-var h='';
-for(var i=0;i<r.data.length;i++){
-    var m=r.data[i],curLabel='';
-    for(var j=0;j<roles.length;j++){if(roles[j].v===m.role){curLabel=roles[j].l;break;}}
-    h+='<tr>';
-    h+='<td><span style="cursor:pointer;color:#2563eb;font-weight:500;" onclick="editMemberName(\''+m.id+'\',\''+escAttr(m.display_name||'')+'\')" title="点击编辑名称">'+escHtml(m.display_name||'(未设置)')+' ✎</span></td>';
-    h+='<td style="font-size:.75rem;color:var(--muted);">'+escHtml(m.id.substring(0,18))+'...</td>';
-    h+='<td>'+escHtml(m.department||'-')+'</td><td><span class="badge badge-blue">'+curLabel+'</span></td>';
-    h+='<td><select onchange="changeRole(\''+m.id+'\',this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;font-size:.8rem;max-width:130px;">';
-    for(var k=0;k<roles.length;k++){h+='<option value="'+roles[k].v+'"'+(m.role===roles[k].v?' selected':'')+'>'+roles[k].l+'</option>';}
-    h+='</select></td>';
-    h+='<td style="white-space:nowrap;">'+(m.id!==currentUser.id?'<button class="btn btn-danger btn-xs" onclick="deleteMember(\''+m.id+'\',\''+escAttr(m.display_name||m.id.substring(0,8))+'\')">🗑️ 删除</button>':'<span style="font-size:.7rem;color:var(--muted);">当前用户</span>')+'</td></tr>';
-}
-tb.innerHTML=h;
-            });
+    var roles=[{v:'super_admin',l:'👑 超级管理员'},{v:'president',l:'👔 社长'},{v:'admin_secretary',l:'📋 行政秘书'},{v:'vice_president',l:'🏠 副社长'},{v:'author',l:'📝 采访部'},{v:'photographer',l:'📸 摄影部'},{v:'video_editor',l:'🎬 剪辑部'},{v:'recruitment_admin',l:'📢 策划部'},{v:'logistics_admin',l:'🔧 后勤部'},{v:'finance_admin',l:'💰 财务部'},{v:'viewer',l:'👁️ 普通社员'}];
+    supabase.from('profiles').select('*').order('created_at',{ascending:false}).then(function(r){
+        var tb=document.getElementById('membersTbody');if(!tb)return;
+        if(!r.data||r.data.length===0){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;">暂无成员</td></tr>';return;}
+        var h='';
+        for(var i=0;i<r.data.length;i++){
+            var m=r.data[i],curLabel='';
+            for(var j=0;j<roles.length;j++){if(roles[j].v===m.role){curLabel=roles[j].l;break;}}
+            h+='<tr>';
+            h+='<td><span style="cursor:pointer;color:#2563eb;font-weight:500;" onclick="editMemberInfo(\''+m.id+'\',\''+escAttr(m.display_name||'')+'\',\''+escAttr(m.department||'')+'\')" title="点击编辑信息">'+escHtml(m.display_name||'(未设置)')+' ✎</span></td>';
+            h+='<td style="font-size:.75rem;color:var(--muted);">'+(m.email?escHtml(m.email):escHtml(m.id.substring(0,18))+'...')+'</td>';
+            h+='<td>'+escHtml(m.department||'-')+'</td><td><span class="badge badge-blue">'+curLabel+'</span></td>';
+            h+='<td><select onchange="changeRole(\''+m.id+'\',this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;font-size:.8rem;max-width:130px;">';
+            for(var k=0;k<roles.length;k++){h+='<option value="'+roles[k].v+'"'+(m.role===roles[k].v?' selected':'')+'>'+roles[k].l+'</option>';}
+            h+='</select></td>';
+            h+='<td style="white-space:nowrap;">';
+            h+='<button class="btn btn-outline btn-xs" onclick="editMemberInfo(\''+m.id+'\',\''+escAttr(m.display_name||'')+'\',\''+escAttr(m.department||'')+'\')">✏️</button> ';
+            if(m.id!==currentUser.id){h+='<button class="btn btn-danger btn-xs" onclick="deleteMember(\''+m.id+'\',\''+escAttr(m.display_name||m.id.substring(0,8))+'\')">🗑</button>';}
+            else{h+='<span style="font-size:.7rem;color:var(--muted);">当前用户</span>';}
+            h+='</td></tr>';
         }
+        tb.innerHTML=h;
+    });
+}
         function editMemberName(uid,currentName){var newName=prompt('请输入新名称（留空则清除）：',currentName||'');if(newName===null)return;newName=newName.trim();supabase.from('profiles').update({display_name:newName}).eq('id',uid).then(function(r){if(r.error){toast('修改失败: '+r.error.message,'err');return;}toast('名称已更新','ok');writeLog('修改成员名称','profile',uid,newName||'(已清除)');loadMembers();if(uid===currentUser.id){currentUser.display_name=newName;document.getElementById('userName').textContent=newName||currentUser.department||'用户';}});}
         function deleteMember(uid,label){if(!confirm('确定删除成员 "'+(label||uid)+'"？\n\n注意：此操作仅删除该用户的资料记录，其在认证系统中的账号仍存在但将无法使用本系统。'))return;supabase.from('profiles').delete().eq('id',uid).then(function(r){if(r.error){toast('删除失败: '+r.error.message,'err');return;}toast('成员已删除','ok');writeLog('删除成员','profile',uid,label);loadMembers();});}
         function changeRole(uid,newRole){if(!confirm('确定修改此成员的角色？')){loadMembers();return;}supabase.from('profiles').update({role:newRole}).eq('id',uid).then(function(r){if(r.error){alert('❌ 修改失败\n\n错误码: '+(r.error.code||'无')+'\n错误信息: '+r.error.message+'\nHTTP状态: '+(r.error.status||'无')+'\n详情: '+(r.error.details||'无'));toast('修改失败: '+r.error.message,'err');loadMembers();return;}toast('角色已更新 ✅','ok');writeLog('修改成员角色','profile',uid,newRole);if(uid===currentUser.id){loadProfile(uid);}loadMembers();});}
+        function editMemberInfo(uid, currentName, currentDept){
+    var newName = prompt('修改显示名称（留空不变）：', currentName || '');
+    if(newName === null) return;
+    newName = newName.trim();
+    var newDept = prompt('修改部门（留空不变）：', currentDept || '');
+    if(newDept === null) return;
+    newDept = newDept.trim();
+    
+    var updateData = {};
+    if(newName !== (currentName || '')) updateData.display_name = newName;
+    if(newDept !== (currentDept || '')) updateData.department = newDept;
+    
+    if(Object.keys(updateData).length === 0){toast('未做任何修改','err');return;}
+    
+    supabase.from('profiles').update(updateData).eq('id', uid).then(function(r){
+        if(r.error){toast('修改失败: '+r.error.message,'err');return;}
+        toast('信息已更新 ✅','ok');
+        writeLog('编辑成员信息','profile',uid,JSON.stringify(updateData));
+        if(uid === currentUser.id){
+            if(updateData.display_name) currentUser.display_name = updateData.display_name;
+            if(updateData.department) currentUser.department = updateData.department;
+            document.getElementById('userName').textContent = currentUser.display_name || currentUser.department || '用户';
+        }
+        loadMembers();
+    });
+}
 
         // ===== 登录 / 登出 =====
         function doLogin(){
