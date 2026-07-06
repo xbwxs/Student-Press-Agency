@@ -790,16 +790,94 @@ function toggleRecruitment(){
         // 6. 成员管理
         // ==========================================
         function buildMembers(container){
-            if(!hasRole('super_admin')){noPerm(container,'只有超级管理员可以管理成员。');return;}
-            var html='<div class="card"><div class="card-header"><span>成员权限管理</span>';
-            html+='<button class="btn btn-blue btn-sm" onclick="openMemberForm()">+ 添加成员</button></div>';
-            html+='<div class="card-body" id="memberForm" style="display:none;border-bottom:1px solid var(--border);"><h4 style="margin-bottom:12px;">➕ 添加新成员</h4><p class="hint mb">通过邮箱注册新成员账号。</p>';
-            html+='<div class="row3 mb"><div class="field"><label>邮箱 *</label><input type="email" id="mEmail" placeholder="member@example.com"></div><div class="field"><label>密码 *</label><input type="password" id="mPassword" placeholder="至少6位"></div><div class="field"><label>显示名称</label><input type="text" id="mDisplayName" placeholder="张三"></div></div>';
-            html+='<div class="row2 mb"><div class="field"><label>部门</label><select id="mDepartment"><option value="">请选择</option><option>采访部</option><option>摄影部</option><option>剪辑部</option><option>策划部</option><option>后勤部</option><option>财务部</option></select></div><div class="field"><label>角色</label><select id="mRole"><option value="viewer">👁️ 普通社员</option><option value="author">📝 采访部</option><option value="photographer">📸 摄影部</option><option value="video_editor">🎬 剪辑部</option><option value="recruitment_admin">📢 策划部</option><option value="logistics_admin">🔧 后勤部</option><option value="finance_admin">💰 财务部</option><option value="admin_secretary">📋 行政秘书</option><option value="vice_president">🏠 副社长</option><option value="president">👔 社长</option></select></div></div>';
-            html+='<div class="g"><button class="btn btn-green btn-sm" onclick="addMember()">💾 创建成员</button><button class="btn btn-outline btn-sm" onclick="closeMemberForm()">取消</button></div></div>';
-            html+='<div class="table-wrap"><table><thead><tr><th>名称</th><th>邮箱</th><th>部门</th><th>角色</th><th>更改角色</th><th>操作</th></tr></thead><tbody id="membersTbody"><tr><td colspan="6" style="text-align:center;padding:32px;">加载中...</td></tr></tbody></table></div></div>';
-            container.innerHTML=html;loadMembers();
+    if(!hasRole('super_admin')){noPerm(container,'只有超级管理员可以管理成员。');return;}
+    var html='<div class="card"><div class="card-header"><span>成员权限管理</span>';
+    html+='<button class="btn btn-blue btn-sm" onclick="openMemberForm()">+ 添加成员</button>';
+    html+='<button class="btn btn-green btn-sm" onclick="openBatchForm()">📥 批量导入</button></div>';
+
+    // 单个添加表单
+    html+='<div class="card-body" id="memberForm" style="display:none;border-bottom:1px solid var(--border);"><h4 style="margin-bottom:12px;">➕ 添加新成员</h4><p class="hint mb">通过邮箱注册新成员账号。</p>';
+    html+='<div class="row3 mb"><div class="field"><label>邮箱 *</label><input type="email" id="mEmail" placeholder="member@example.com"></div><div class="field"><label>密码 *</label><input type="password" id="mPassword" placeholder="至少6位"></div><div class="field"><label>显示名称</label><input type="text" id="mDisplayName" placeholder="张三"></div></div>';
+    html+='<div class="row2 mb"><div class="field"><label>部门</label><select id="mDepartment"><option value="">请选择</option><option>采访部</option><option>摄影部</option><option>剪辑部</option><option>策划部</option><option>后勤部</option><option>财务部</option></select></div><div class="field"><label>角色</label><select id="mRole"><option value="viewer">👁️ 普通社员</option><option value="author">📝 采访部</option><option value="photographer">📸 摄影部</option><option value="video_editor">🎬 剪辑部</option><option value="recruitment_admin">📢 策划部</option><option value="logistics_admin">🔧 后勤部</option><option value="finance_admin">💰 财务部</option><option value="admin_secretary">📋 行政秘书</option><option value="vice_president">🏠 副社长</option><option value="president">👔 社长</option></select></div></div>';
+    html+='<div class="g"><button class="btn btn-green btn-sm" onclick="addMember()">💾 创建成员</button><button class="btn btn-outline btn-sm" onclick="closeMemberForm()">取消</button></div></div>';
+
+    // ✨ 批量导入表单
+    html+='<div class="card-body" id="batchForm" style="display:none;border-bottom:1px solid var(--border);"><h4 style="margin-bottom:12px;">📥 批量导入成员</h4><p class="hint mb">每行一个成员，格式：<b>邮箱,密码,姓名,部门,角色</b></p><p class="hint mb">角色可选：viewer / author / photographer / video_editor / recruitment_admin / logistics_admin / finance_admin</p>';
+    html+='<div class="field"><label>粘贴名单</label><textarea id="batchInput" rows="10" placeholder="3512513895@qq.com,hz2pmx7k,何子璐,剪辑部,video_editor&#10;3958310826@qq.com,fx4tr9nq,方欣怡,采访部,author&#10;..."></textarea></div>';
+    html+='<div class="field"><label>进度</label><div id="batchProgress" style="font-size:.8rem;color:var(--muted);">等待导入...</div></div>';
+    html+='<div class="g"><button class="btn btn-green btn-sm" onclick="batchImport()">🚀 开始导入</button><button class="btn btn-outline btn-sm" onclick="closeBatchForm()">取消</button></div></div>';
+
+    html+='<div class="table-wrap"><table><thead><tr><th>名称</th><th>邮箱</th><th>部门</th><th>角色</th><th>更改角色</th><th>操作</th></tr></thead><tbody id="membersTbody"><tr><td colspan="6" style="text-align:center;padding:32px;">加载中...</td></tr></tbody></table></div></div>';
+    container.innerHTML=html;loadMembers();
+}
+
+// ✨ 打开/关闭批量导入
+function openBatchForm(){document.getElementById('batchForm').style.display='block';document.getElementById('memberForm').style.display='none';document.getElementById('batchForm').scrollIntoView({behavior:'smooth',block:'start'});}
+function closeBatchForm(){document.getElementById('batchForm').style.display='none';}
+
+// ✨ 批量导入函数
+var batchRunning = false;
+function batchImport(){
+    if(batchRunning){toast('正在导入中，请稍候...','err');return;}
+    var raw = document.getElementById('batchInput').value.trim();
+    if(!raw){toast('请粘贴成员名单','err');return;}
+    var lines = raw.split('\n').filter(function(l){return l.trim();});
+    if(lines.length === 0){toast('没有有效行','err');return;}
+    if(!confirm('确定导入 '+lines.length+' 名成员？\n\n每个间隔 1.5 秒，预计 '+(lines.length*1.5).toFixed(0)+' 秒完成。')) return;
+
+    batchRunning = true;
+    var total = lines.length;
+    var done = 0;
+    var failed = 0;
+    var progressEl = document.getElementById('batchProgress');
+    var btn = document.querySelector('#batchForm .btn-green');
+    if(btn){btn.disabled = true;btn.textContent = '导入中...';}
+
+    function processNext(index){
+        if(index >= lines.length){
+            batchRunning = false;
+            if(btn){btn.disabled = false;btn.textContent = '🚀 开始导入';}
+            progressEl.textContent = '✅ 完成！成功 ' + done + ' 人，失败 ' + failed + ' 人';
+            loadMembers();
+            toast('导入完成：成功 '+done+' / 失败 '+failed,'ok');
+            return;
         }
+        var parts = lines[index].split(',');
+        if(parts.length < 3){
+            failed++;
+            progressEl.textContent = '⏳ ' + (index+1) + '/' + total + ' | ❌ 第'+(index+1)+'行格式错误';
+            setTimeout(function(){processNext(index+1);}, 200);
+            return;
+        }
+        var email = parts[0].trim();
+        var password = parts[1].trim();
+        var name = parts[2].trim();
+        var dept = (parts[3]||'').trim();
+        var role = (parts[4]||'').trim();
+progressEl.textContent = '⏳ ' + (index+1) + '/' + total + ' | 正在创建 ' + name + '...';
+supabase.auth.signUp({email:email, password:password}).then(function(r) {
+    if (r.error) {
+        failed++;
+        progressEl.textContent = '⏳ ' + (index+1) + '/' + total + ' | ❌ ' + name + ': ' + r.error.message;
+                setTimeout(function(){processNext(index+1);}, 300);
+            } else {
+                var uid = r.data.user ? r.data.user.id : null;
+                if(uid){
+                    supabase.from('profiles').upsert({id:uid, display_name:name, department:dept, role:role}).then(function(){
+                        done++;
+                        progressEl.textContent = '⏳ ' + (index+1) + '/' + total + ' | ✅ ' + name + ' 完成';
+                        setTimeout(function(){processNext(index+1);}, 1500);
+                    });
+                } else {
+                    done++;
+                    progressEl.textContent = '⏳ ' + (index+1) + '/' + total + ' | ✅ ' + name + '（需邮件确认）';
+                    setTimeout(function(){processNext(index+1);}, 1500);
+                }
+            }
+        });
+    }
+    processNext(0);
+}
         function openMemberForm(){var form=document.getElementById('memberForm');if(!form)return;form.style.display='block';document.getElementById('mEmail').value='';document.getElementById('mPassword').value='';document.getElementById('mDisplayName').value='';document.getElementById('mDepartment').value='';document.getElementById('mRole').value='viewer';form.scrollIntoView({behavior:'smooth',block:'start'});}
         function closeMemberForm(){var form=document.getElementById('memberForm');if(form)form.style.display='none';}
         function addMember(){
