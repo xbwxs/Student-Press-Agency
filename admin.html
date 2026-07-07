@@ -258,6 +258,8 @@
 
     <script>
      var getLocalDate = function(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+     function toBJ(iso){ if(!iso)return'';var d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function toBJTime(iso){ if(!iso)return'';var d=new Date(iso);return toBJ(iso)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
         var supabase = window.supabase.createClient(
             'https://dhwgxuvkwjqkwgetezun.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2d4dXZrd2pxa3dnZXRlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTU4NDksImV4cCI6MjA5ODc3MTg0OX0.xbeSSfXk6_mdKN-9B1B0MByiFrXIntcNDlJS1XAnlrs'
@@ -546,7 +548,7 @@ case'checkin':buildCheckin(c);break;
                     h+='<td>'+escHtml(a.class_name||'')+'</td>';
                     h+='<td>'+escHtml(a.phone||'')+'</td>';
                     h+='<td>'+escHtml(a.department||'')+'</td>';
-                    h+='<td>'+(a.created_at||'').substring(0,10)+'</td>';
+                    h+='<td>'+toBJ(a.created_at) +'</td>';
                     h+='<td><span class="badge '+bc+'">'+(map[a.status]||a.status)+'</span></td>';
                     h+='<td style="white-space:nowrap;">';
                     h+='<button class="btn btn-outline btn-xs" onclick="updateRec(\''+a.id+'\',\'accepted\')">通过</button> ';
@@ -712,7 +714,7 @@ case'checkin':buildCheckin(c);break;
                     var h='';
                     for(var i=0;i<r.data.length;i++){
                         var f=r.data[i];if(f.type==='income')income+=f.amount;else expense+=f.amount;
-                        h+='<tr><td>'+(f.created_at||'').substring(0,10)+'</td>';
+                        h+='<tr><td>'+toBJ(f.created_at) +'</td>';
                         h+='<td>'+(f.type==='income'?'<span style="color:#10b981;font-weight:600;">📈 收入</span>':'<span style="color:#ef4444;font-weight:600;">📉 支出</span>')+'</td>';
                         h+='<td>'+escHtml(f.category||'')+'</td><td style="font-weight:700;">¥'+f.amount.toFixed(2)+'</td>';
                         h+='<td>'+escHtml(f.description||'')+'</td><td>'+escHtml(f.handler||'')+'</td>';
@@ -747,7 +749,7 @@ case'checkin':buildCheckin(c);break;
                 var h='';
                 for(var i=0;i<r.data.length;i++){
                     var l=r.data[i];
-                    h+='<tr><td style="white-space:nowrap;">'+(l.created_at||'').substring(0,16)+'</td>';
+                    h+='<tr><td style="white-space:nowrap;">'+toBJTime(l.created_at)+'</td>';
                     h+='<td>'+escHtml(l.user_name||'-')+'</td><td>'+(rn[l.user_role]||l.user_role||'-')+'</td>';
                     h+='<td>'+escHtml(l.action)+'</td>';
                     h+='<td style="color:var(--muted);font-size:.78rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;">'+escHtml(l.detail||'')+'</td></tr>';
@@ -1065,7 +1067,7 @@ function loadOpinionList(){
             h+='<span style="background:'+(catColor[s.category]||'#f1f5f9')+';border-radius:12px;padding:1px 8px;font-size:.68rem;">'+(catEmoji[s.category]||'')+' '+escHtml(s.category||'其他')+'</span>';
             h+='<span style="font-size:.65rem;color:'+(statusColor[s.status]||'#94a3b8')+';">● '+(statusLabel[s.status]||s.status)+'</span>';
             h+='</div>';
-            h+='<span style="font-size:.7rem;color:var(--muted);">'+(s.created_at||'').substring(0,16)+'</span>';
+            h+='<span style="font-size:.7rem;color:var(--muted);">'+toBJTime(s.created_at) +'</span>';
             h+='</div>';
             h+='<div style="font-size:.85rem;line-height:1.5;margin-bottom:6px;">'+escHtml(s.content)+'</div>';
             if(s.reply)h+='<div style="margin-bottom:6px;padding:8px 10px;background:#f0fdf4;border-radius:6px;font-size:.8rem;"><span style="font-weight:600;color:#059669;">📢 回复：</span>'+escHtml(s.reply)+'</div>';
@@ -1221,7 +1223,7 @@ function showMemberCard(uid){
         h+='<div class="kv"><span class="k">班级</span><span class="v">'+escHtml(m.class_name||'-')+'</span></div>';
         h+='<div class="kv"><span class="k">QQ</span><span class="v">'+escHtml(m.qq||'-')+'</span></div>';
         h+='<div class="kv"><span class="k">电话</span><span class="v">'+escHtml(m.phone||'-')+'</span></div>';
-        if(m.last_seen)h+='<div class="kv"><span class="k">最近活跃</span><span class="v">'+(m.last_seen||'').substring(0,16)+'</span></div>';
+        if(m.last_seen)h+='<div class="kv"><span class="k">最近活跃</span><span class="v">'+toBJTime(m.last_seen) +'</span></div>';
         document.getElementById('detailContent').innerHTML=h;
         document.getElementById('detailActions').innerHTML=
             (canEdit?'<button class="btn btn-outline btn-sm" onclick="editMemberCard(\''+m.id+'\',\''+escAttr(m.display_name||'')+'\',\''+escAttr(m.department||'')+'\',\''+escAttr(m.class_name||'')+'\',\''+escAttr(m.qq||'')+'\',\''+escAttr(m.phone||'')+'\');closeDetail();">✏️ 编辑</button> ':'')+
@@ -1232,29 +1234,41 @@ function showMemberCard(uid){
 }
 
 function editMemberCard(uid,name,dept,cls,qq,phone){
-    var newName=prompt('名称：',name||'');if(newName===null)return;newName=newName.trim();
-    var newDept=prompt('部门：',dept||'');if(newDept===null)return;newDept=newDept.trim();
-    var newClass=prompt('班级：',cls||'');if(newClass===null)return;newClass=newClass.trim();
-    var newQq=prompt('QQ：',qq||'');if(newQq===null)return;newQq=newQq.trim();
-    var newPhone=prompt('电话：',phone||'');if(newPhone===null)return;newPhone=newPhone.trim();
-    var updateData={};
-    if(newName!==(name||''))updateData.display_name=newName;
-    if(newDept!==(dept||''))updateData.department=newDept;
-    if(newClass!==(cls||''))updateData.class_name=newClass;
-    if(newQq!==(qq||''))updateData.qq=newQq;
-    if(newPhone!==(phone||''))updateData.phone=newPhone;
-    if(Object.keys(updateData).length===0){toast('未修改','err');return;}
-    supabase.from('profiles').update(updateData).eq('id',uid).then(function(r){
-        if(r.error){toast('更新失败: '+r.error.message,'err');return;}
-        toast('已更新 ✅','ok');
-        writeLog('编辑成员信息','profile',uid,JSON.stringify(updateData));
-        if(uid===currentUser.id){
-            if(updateData.display_name)currentUser.display_name=updateData.display_name;
-            if(updateData.department)currentUser.department=updateData.department;
-            document.getElementById('userName').textContent=currentUser.display_name||currentUser.department||'用户';
+    var isAdmin=hasRole('super_admin','president');
+    var isSelf=uid===currentUser.id;
+
+    // 管理员可改全部，普通成员只能改班级/QQ/电话
+    if(isAdmin||isSelf){
+        var newClass=prompt('班级：',cls||'');if(newClass===null)return;newClass=newClass.trim();
+        var newQq=prompt('QQ：',qq||'');if(newQq===null)return;newQq=newQq.trim();
+        var newPhone=prompt('电话：',phone||'');if(newPhone===null)return;newPhone=newPhone.trim();
+
+        var updateData={};
+        if(newClass!==(cls||''))updateData.class_name=newClass;
+        if(newQq!==(qq||''))updateData.qq=newQq;
+        if(newPhone!==(phone||''))updateData.phone=newPhone;
+
+        // 管理员额外可以改姓名和部门
+        if(isAdmin){
+            var newName=prompt('名称（管理员）：',name||'');if(newName===null)return;newName=newName.trim();
+            var newDept=prompt('部门（管理员）：',dept||'');if(newDept===null)return;newDept=newDept.trim();
+            if(newName!==(name||''))updateData.display_name=newName;
+            if(newDept!==(dept||''))updateData.department=newDept;
         }
-        loadWall();
-    });
+
+        if(Object.keys(updateData).length===0){toast('未修改','err');return;}
+        supabase.from('profiles').update(updateData).eq('id',uid).then(function(r){
+            if(r.error){toast('更新失败: '+r.error.message,'err');return;}
+            toast('已更新 ✅','ok');
+            writeLog('编辑成员信息','profile',uid,JSON.stringify(updateData));
+            if(uid===currentUser.id){
+                if(updateData.display_name)currentUser.display_name=updateData.display_name;
+                if(updateData.department)currentUser.department=updateData.department;
+                document.getElementById('userName').textContent=currentUser.display_name||currentUser.department||'用户';
+            }
+            loadWall();
+        });
+    }
 }
 
 function exportWall(){
