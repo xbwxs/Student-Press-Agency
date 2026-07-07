@@ -211,6 +211,9 @@
                 <a data-tab="logs" onclick="switchTab('logs')">📋 操作日志</a>
                 <a data-tab="settings" onclick="switchTab('settings')">⚙️ 网站设置</a>
                 <a data-tab="members" onclick="switchTab('members')">👥 成员管理</a>
+                <a data-tab="opinion" onclick="switchTab('opinion')">📬 意见箱</a>
+                <a data-tab="wall" onclick="switchTab('wall')">👥 社员墙</a>
+                <a data-tab="checkin" onclick="switchTab('checkin')">✅ 签到</a>
             </nav>
             <div class="user-info">
                 <strong id="userName">-</strong>
@@ -237,6 +240,9 @@
             <div class="panel" id="panel-finance"><div id="perm-finance"></div></div>
             <div class="panel" id="panel-logs"><div id="perm-logs"></div></div>
             <div class="panel" id="panel-settings"><div id="perm-settings"></div></div>
+            <div class="panel" id="panel-opinion"><div id="perm-opinion"></div></div>
+<div class="panel" id="panel-wall"><div id="perm-wall"></div></div>
+<div class="panel" id="panel-checkin"><div id="perm-checkin"></div></div>
             <div class="panel" id="panel-members"><div id="perm-members"></div></div>
         </main>
     </div>
@@ -296,7 +302,15 @@
             document.getElementById('userName').textContent=currentUser.display_name||currentUser.department||'用户';
             document.getElementById('userRoleTag').textContent=roleNames[currentUser.role]||currentUser.role;
             loadStats();switchTab('articles');
-        }
+            checkCheckinReminder();
+}
+
+function checkCheckinReminder(){
+    var today=new Date().toISOString().substring(0,10);
+    supabase.from('checkins').select('id').eq('user_id',currentUser.id).eq('check_date',today).single().then(function(r){
+        if(!r.data){toast('📅 今天还没签到哦，快去签到吧！','err');}
+    });
+}
 
         function switchTab(t){
             if(loadingTab)return;loadingTab=true;closeSidebar();
@@ -304,7 +318,7 @@
             var panel=document.getElementById('panel-'+t);if(panel)panel.classList.add('show');
             document.querySelectorAll('.sidebar nav a').forEach(function(a){a.classList.remove('active');});
             var link=document.querySelector('.sidebar nav a[data-tab="'+t+'"]');if(link)link.classList.add('active');
-            var titles={articles:'📰 文章管理',recruitment:'📝 报名审核',finance:'💰 财务管理',logs:'📋 操作日志',settings:'⚙️ 网站设置',members:'👥 成员管理'};
+            var titles={articles:'📰 文章管理',recruitment:'📝 报名审核',finance:'💰 财务管理',logs:'📋 操作日志',settings:'⚙️ 网站设置',members:'👥 成员管理',opinion:'📬 意见箱',wall:'👥 社员墙',checkin:'✅ 每日签到'};
             document.getElementById('pageTitle').textContent=titles[t]||'';buildPanel(t);loadingTab=false;
         }
 
@@ -317,6 +331,9 @@
                 case'logs':buildLogs(c);break;
                 case'settings':buildSettings(c);break;
                 case'members':buildMembers(c);break;
+                case'opinion':buildOpinion(c);break;
+case'wall':buildWall(c);break;
+case'checkin':buildCheckin(c);break;
             }
         }
         function noPerm(c,m){c.innerHTML='<div class="no-perm"><div class="icon">🔒</div><h3>暂无此权限</h3><p>'+m+'</p></div>';}
@@ -910,7 +927,7 @@ supabase.auth.signUp({email:email, password:password}).then(function(r) {
             for(var k=0;k<roles.length;k++){h+='<option value="'+roles[k].v+'"'+(m.role===roles[k].v?' selected':'')+'>'+roles[k].l+'</option>';}
             h+='</select></td>';
             h+='<td style="white-space:nowrap;">';
-            h+='<button class="btn btn-outline btn-xs" onclick="editMemberInfo(\''+m.id+'\',\''+escAttr(m.display_name||'')+'\',\''+escAttr(m.department||'')+'\')">✏️</button> ';
+            h+='<button class="btn btn-outline btn-xs" onclick="editMemberInfo(\''+m.id+'\',\''+escAttr(m.display_name||'')+'\',\''+escAttr(m.department||'')+'\',\''+escAttr(m.class_name||'')+'\',\''+escAttr(m.qq||'')+'\',\''+escAttr(m.phone||'')+'\')">✏️</button> ';
             if(m.id!==currentUser.id){h+='<button class="btn btn-danger btn-xs" onclick="deleteMember(\''+m.id+'\',\''+escAttr(m.display_name||m.id.substring(0,8))+'\')">🗑</button>';}
             else{h+='<span style="font-size:.7rem;color:var(--muted);">当前用户</span>';}
             h+='</td></tr>';
@@ -921,20 +938,32 @@ supabase.auth.signUp({email:email, password:password}).then(function(r) {
         function editMemberName(uid,currentName){var newName=prompt('请输入新名称（留空则清除）：',currentName||'');if(newName===null)return;newName=newName.trim();supabase.from('profiles').update({display_name:newName}).eq('id',uid).then(function(r){if(r.error){toast('修改失败: '+r.error.message,'err');return;}toast('名称已更新','ok');writeLog('修改成员名称','profile',uid,newName||'(已清除)');loadMembers();if(uid===currentUser.id){currentUser.display_name=newName;document.getElementById('userName').textContent=newName||currentUser.department||'用户';}});}
         function deleteMember(uid,label){if(!confirm('确定删除成员 "'+(label||uid)+'"？\n\n注意：此操作仅删除该用户的资料记录，其在认证系统中的账号仍存在但将无法使用本系统。'))return;supabase.from('profiles').delete().eq('id',uid).then(function(r){if(r.error){toast('删除失败: '+r.error.message,'err');return;}toast('成员已删除','ok');writeLog('删除成员','profile',uid,label);loadMembers();});}
         function changeRole(uid,newRole){if(!confirm('确定修改此成员的角色？')){loadMembers();return;}supabase.from('profiles').update({role:newRole}).eq('id',uid).then(function(r){if(r.error){alert('❌ 修改失败\n\n错误码: '+(r.error.code||'无')+'\n错误信息: '+r.error.message+'\nHTTP状态: '+(r.error.status||'无')+'\n详情: '+(r.error.details||'无'));toast('修改失败: '+r.error.message,'err');loadMembers();return;}toast('角色已更新 ✅','ok');writeLog('修改成员角色','profile',uid,newRole);if(uid===currentUser.id){loadProfile(uid);}loadMembers();});}
-        function editMemberInfo(uid, currentName, currentDept){
+        function editMemberInfo(uid, currentName, currentDept, currentClass, currentQq, currentPhone){
     var newName = prompt('修改显示名称（留空不变）：', currentName || '');
     if(newName === null) return;
     newName = newName.trim();
     var newDept = prompt('修改部门（留空不变）：', currentDept || '');
     if(newDept === null) return;
     newDept = newDept.trim();
-    
+    var newClass = prompt('修改班级（留空不变）：', currentClass || '');
+    if(newClass === null) return;
+    newClass = newClass.trim();
+    var newQq = prompt('修改QQ（留空不变）：', currentQq || '');
+    if(newQq === null) return;
+    newQq = newQq.trim();
+    var newPhone = prompt('修改电话（留空不变）：', currentPhone || '');
+    if(newPhone === null) return;
+    newPhone = newPhone.trim();
+
     var updateData = {};
     if(newName !== (currentName || '')) updateData.display_name = newName;
     if(newDept !== (currentDept || '')) updateData.department = newDept;
-    
+    if(newClass !== (currentClass || '')) updateData.class_name = newClass;
+    if(newQq !== (currentQq || '')) updateData.qq = newQq;
+    if(newPhone !== (currentPhone || '')) updateData.phone = newPhone;
+
     if(Object.keys(updateData).length === 0){toast('未做任何修改','err');return;}
-    
+
     supabase.from('profiles').update(updateData).eq('id', uid).then(function(r){
         if(r.error){toast('修改失败: '+r.error.message,'err');return;}
         toast('信息已更新 ✅','ok');
@@ -957,6 +986,519 @@ supabase.auth.signUp({email:email, password:password}).then(function(r) {
         }
         function doLogout(){if(!confirm('确定退出登录？'))return;supabase.auth.signOut().then(function(){location.reload();});}
         function toast(msg,type){var old=document.querySelector('.toast');if(old)old.remove();var t=document.createElement('div');t.className='toast '+(type||'ok');t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(function(){if(t.parentNode)t.remove();},300);},2500);}
+        // ==========================================
+// 7. 意见箱（完整版）
+// ==========================================
+function buildOpinion(container){
+    var html='<div class="card"><div class="card-header"><span>📬 意见箱</span>';
+    html+='<button class="btn btn-blue btn-sm" onclick="openOpinionForm()">✍️ 提交意见</button></div>';
+
+    html+='<div class="card-body" id="opinionForm" style="display:none;border-bottom:1px solid var(--border);">';
+    html+='<h4 style="margin-bottom:12px;">提交意见或建议</h4>';
+    html+='<div class="row2 mb"><div class="field"><label>分类</label><select id="oCategory"><option value="建议">💡 建议</option><option value="吐槽">😤 吐槽</option><option value="表扬">🌟 表扬</option><option value="想法">💭 想法</option><option value="其他">📌 其他</option></select></div></div>';
+    html+='<div class="field"><label>内容</label><textarea id="oContent" rows="4" placeholder="你的想法..."></textarea></div>';
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
+    html+='<input type="checkbox" id="oAnonymous"><label for="oAnonymous" style="font-size:.85rem;">匿名提交</label></div>';
+    html+='<div class="g"><button class="btn btn-green btn-sm" onclick="submitOpinion()">💾 提交</button>';
+    html+='<button class="btn btn-outline btn-sm" onclick="closeOpinionForm()">取消</button></div></div>';
+
+    html+='<div style="padding:8px 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">';
+    html+='<select id="oFilter" onchange="loadOpinionList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;">';
+    html+='<option value="全部">全部</option><option value="建议">💡 建议</option><option value="吐槽">😤 吐槽</option><option value="表扬">🌟 表扬</option><option value="想法">💭 想法</option><option value="其他">📌 其他</option></select>';
+    html+='<input type="text" id="oSearch" placeholder="🔍 搜索..." oninput="loadOpinionList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;max-width:160px;flex:1;"></div>';
+
+    html+='<div style="padding:12px 18px;" id="opinionList">加载中...</div>';
+    html+='</div>';
+    container.innerHTML=html;
+    loadOpinionList();
+}
+
+function openOpinionForm(){document.getElementById('opinionForm').style.display='block';}
+function closeOpinionForm(){
+    document.getElementById('opinionForm').style.display='none';
+    document.getElementById('oContent').value='';
+}
+
+function submitOpinion(){
+    var content=document.getElementById('oContent').value.trim();
+    var category=document.getElementById('oCategory').value;
+    var anonymous=document.getElementById('oAnonymous').checked;
+    if(!content){toast('请输入内容','err');return;}
+    supabase.from('suggestions').insert([{
+        content:content, category:category, is_anonymous:anonymous,
+        user_id:currentUser.id, user_name:anonymous?'匿名':(currentUser.display_name||'用户'),
+        status:'unread', likes:0, pinned:false
+    }]).then(function(r){
+        if(r.error){toast('提交失败: '+r.error.message,'err');return;}
+        closeOpinionForm();
+        loadOpinionList();
+        writeLog('提交意见','suggestion','',category);
+        toast('意见已提交 ✅','ok');
+    });
+}
+
+function loadOpinionList(){
+    var filter=(document.getElementById('oFilter')||{}).value||'全部';
+    var search=((document.getElementById('oSearch')||{}).value||'').trim().toLowerCase();
+    supabase.from('suggestions').select('*').order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(100).then(function(r){
+        var el=document.getElementById('opinionList');
+        if(!el)return;
+        var data=r.data||[];
+        if(filter!=='全部') data=data.filter(function(d){return d.category===filter;});
+        if(search) data=data.filter(function(d){return (d.content||'').toLowerCase().indexOf(search)!==-1 || (d.user_name||'').toLowerCase().indexOf(search)!==-1;});
+        if(data.length===0){el.innerHTML='<div style="text-align:center;padding:32px;color:#888;">暂无意见，欢迎第一个发言 💬</div>';return;}
+        var catColor={建议:'#dbeafe',吐槽:'#fee2e2',表扬:'#d1fae5',想法:'#fef3c7',其他:'#f1f5f9'};
+        var catEmoji={建议:'💡',吐槽:'😤',表扬:'🌟',想法:'💭',其他:'📌'};
+        var statusLabel={unread:'未读',read:'已读',replied:'已回复'};
+        var statusColor={unread:'#f59e0b',read:'#94a3b8',replied:'#10b981'};
+        var h='';
+        for(var i=0;i<data.length;i++){
+            var s=data[i];
+            var isOwner=s.user_id===currentUser.id;
+            var isAdmin=hasRole('super_admin','president');
+            h+='<div style="background:#fff;border-radius:8px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.04);'+(s.pinned?'border-left:3px solid #f59e0b;':'')+'">';
+            h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+            h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
+            if(s.pinned)h+='<span style="font-size:.7rem;">📌</span>';
+            h+='<span style="font-size:.75rem;font-weight:600;color:#2563eb;">'+escHtml(s.user_name)+'</span>';
+            h+='<span style="background:'+(catColor[s.category]||'#f1f5f9')+';border-radius:12px;padding:1px 8px;font-size:.68rem;">'+(catEmoji[s.category]||'')+' '+escHtml(s.category||'其他')+'</span>';
+            h+='<span style="font-size:.65rem;color:'+(statusColor[s.status]||'#94a3b8')+';">● '+(statusLabel[s.status]||s.status)+'</span>';
+            h+='</div>';
+            h+='<span style="font-size:.7rem;color:var(--muted);">'+(s.created_at||'').substring(0,16)+'</span>';
+            h+='</div>';
+            h+='<div style="font-size:.85rem;line-height:1.5;margin-bottom:6px;">'+escHtml(s.content)+'</div>';
+            if(s.reply)h+='<div style="margin-bottom:6px;padding:8px 10px;background:#f0fdf4;border-radius:6px;font-size:.8rem;"><span style="font-weight:600;color:#059669;">📢 回复：</span>'+escHtml(s.reply)+'</div>';
+            h+='<div style="display:flex;align-items:center;gap:12px;font-size:.73rem;color:var(--muted);">';
+            h+='<span onclick="likeOpinion(\''+s.id+'\','+(s.likes||0)+')" style="cursor:pointer;user-select:none;">👍 '+(s.likes||0)+'</span>';
+            if(isAdmin){
+                h+='<span onclick="replyOpinion(\''+s.id+'\')" style="cursor:pointer;color:#2563eb;">💬 回复</span>';
+                h+='<span onclick="togglePinOpinion(\''+s.id+'\','+(s.pinned?'false':'true')+')" style="cursor:pointer;">'+(s.pinned?'📌取消置顶':'📍置顶')+'</span>';
+            }
+            if(isOwner || isAdmin){
+                h+='<span onclick="deleteOpinion(\''+s.id+'\')" style="cursor:pointer;color:#ef4444;">🗑 删除</span>';
+            }
+            h+='</div></div>';
+        }
+        el.innerHTML=h;
+    });
+}
+
+function likeOpinion(id, currentLikes){
+    supabase.from('suggestions').update({likes:(currentLikes||0)+1}).eq('id',id).then(function(r){
+        if(r.error){toast('点赞失败','err');return;}
+        loadOpinionList();
+    });
+}
+
+function replyOpinion(id){
+    var reply=prompt('请输入回复内容：','');
+    if(reply===null||!reply.trim())return;
+    supabase.from('suggestions').update({reply:reply.trim(),status:'replied'}).eq('id',id).then(function(r){
+        if(r.error){toast('回复失败: '+r.error.message,'err');return;}
+        loadOpinionList();
+        writeLog('回复意见','suggestion',id,'');
+        toast('已回复 ✅','ok');
+    });
+}
+
+function togglePinOpinion(id, pin){
+    supabase.from('suggestions').update({pinned:pin}).eq('id',id).then(function(r){
+        if(r.error){toast('操作失败','err');return;}
+        loadOpinionList();
+        writeLog(pin?'置顶意见':'取消置顶','suggestion',id,'');
+        toast(pin?'已置顶':'已取消置顶','ok');
+    });
+}
+
+function deleteOpinion(id){
+    if(!confirm('确定删除这条意见？'))return;
+    supabase.from('suggestions').delete().eq('id',id).then(function(r){
+        if(r.error){toast('删除失败: '+r.error.message,'err');return;}
+        loadOpinionList();
+        writeLog('删除意见','suggestion',id,'');
+        toast('已删除','ok');
+    });
+}
+
+// ==========================================
+// 8. 社员墙（完整版）
+// ==========================================
+var wallSort='department';
+
+function buildWall(container){
+    var html='<div class="card"><div class="card-header"><span>👥 社员通讯录</span>';
+    html+='<div style="display:flex;gap:6px;">';
+    html+='<input type="text" id="wallSearch" placeholder="🔍 搜索..." oninput="loadWall()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;max-width:150px;">';
+    html+='<select id="wallSort" onchange="wallSort=this.value;loadWall();" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-size:.75rem;">';
+    html+='<option value="department">按部门</option><option value="name">按姓名</option><option value="active">按活跃</option></select>';
+    html+='<button class="btn btn-outline btn-xs" onclick="exportWall()">📥 导出</button>';
+    html+='</div></div>';
+    html+='<div id="wallContent" style="padding:14px 18px;">加载中...</div></div>';
+    container.innerHTML=html;
+    loadWall();
+}
+
+function loadWall(){
+    var search=(document.getElementById('wallSearch')||{}).value||'';
+    var sort=wallSort;
+    var orderCol=sort==='name'?'display_name':(sort==='active'?'last_seen':'department');
+    var asc=sort==='name'?true:(sort==='active'?false:true);
+    supabase.from('profiles').select('*').order(orderCol,{ascending:asc}).then(function(r){
+        var el=document.getElementById('wallContent');
+        if(!el)return;
+        var data=r.data||[];
+        if(search){
+            var s=search.toLowerCase();
+            data=data.filter(function(d){
+                return (d.display_name||'').toLowerCase().indexOf(s)!==-1 || (d.department||'').toLowerCase().indexOf(s)!==-1 || (d.class_name||'').toLowerCase().indexOf(s)!==-1;
+            });
+        }
+        if(data.length===0){el.innerHTML='<div style="text-align:center;padding:32px;color:#888;">无匹配成员</div>';return;}
+        var now=new Date();
+        var depts={};
+        for(var k=0;k<data.length;k++){
+            var d=data[k].department||'未分组';
+            if(!depts[d])depts[d]=[];
+            depts[d].push(data[k]);
+        }
+        var deptOrder=['采访部','摄影部','剪辑部','策划部','后勤部','财务部','未分组'];
+        var h='';
+        for(var di=0;di<deptOrder.length;di++){
+            var dn=deptOrder[di];
+            if(!depts[dn])continue;
+            h+='<div style="margin-bottom:14px;">';
+            h+='<div style="font-weight:700;font-size:.85rem;margin-bottom:6px;color:#64748b;">📌 '+dn+'（'+depts[dn].length+'人）</div>';
+            for(var mi=0;mi<depts[dn].length;mi++){
+                var m=depts[dn][mi];
+                var isOnline=false;
+                if(m.last_seen){
+                    var last=new Date(m.last_seen);
+                    if((now-last)/60000<5)isOnline=true;
+                }
+                var roleLabel=roleNames[m.role]||'';
+                h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.82rem;cursor:pointer;" onclick="showMemberCard(\''+m.id+'\')">';
+                h+='<div style="display:flex;align-items:center;gap:8px;">';
+                h+='<span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:'+(isOnline?'#10b981':'#d1d5db')+';"></span>';
+                h+='<div>';
+                h+='<div style="font-weight:500;">'+escHtml(m.display_name||'(未设置)')+'</div>';
+                h+='<div style="font-size:.7rem;color:var(--muted);">';
+                if(m.class_name)h+=escHtml(m.class_name)+' · ';
+                h+=escHtml(roleLabel);
+                h+='</div></div></div>';
+                h+='<div style="font-size:.7rem;color:var(--muted);text-align:right;">';
+                if(m.qq)h+='QQ:'+escHtml(m.qq)+' ';
+                if(m.phone)h+='📱'+escHtml(m.phone);
+                if(!m.qq&&!m.phone)h+='-';
+                h+='</div></div>';
+            }
+            h+='</div>';
+        }
+        el.innerHTML=h;
+    });
+}
+
+function showMemberCard(uid){
+    supabase.from('profiles').select('*').eq('id',uid).single().then(function(r){
+        if(r.error||!r.data){toast('加载失败','err');return;}
+        var m=r.data;
+        var isSelf=m.id===currentUser.id;
+        var isAdmin=hasRole('super_admin','president');
+        var canEdit=isSelf||isAdmin;
+        var roleLabel=roleNames[m.role]||'';
+        var now=new Date();
+        var isOnline=false;
+        if(m.last_seen){
+            var last=new Date(m.last_seen);
+            if((now-last)/60000<5)isOnline=true;
+        }
+        var h='<div style="text-align:center;margin-bottom:16px;">';
+        h+='<div style="font-size:3rem;">'+(isOnline?'🟢':'🔘')+'</div>';
+        h+='<div style="font-size:1.2rem;font-weight:700;">'+escHtml(m.display_name||'未设置')+'</div>';
+        h+='<div style="font-size:.8rem;color:var(--muted);">'+escHtml(roleLabel)+'</div>';
+        h+='</div>';
+        h+='<div class="kv"><span class="k">部门</span><span class="v">'+escHtml(m.department||'-')+'</span></div>';
+        h+='<div class="kv"><span class="k">班级</span><span class="v">'+escHtml(m.class_name||'-')+'</span></div>';
+        h+='<div class="kv"><span class="k">QQ</span><span class="v">'+escHtml(m.qq||'-')+'</span></div>';
+        h+='<div class="kv"><span class="k">电话</span><span class="v">'+escHtml(m.phone||'-')+'</span></div>';
+        if(m.last_seen)h+='<div class="kv"><span class="k">最近活跃</span><span class="v">'+(m.last_seen||'').substring(0,16)+'</span></div>';
+        document.getElementById('detailContent').innerHTML=h;
+        document.getElementById('detailActions').innerHTML=
+            (canEdit?'<button class="btn btn-outline btn-sm" onclick="editMemberCard(\''+m.id+'\',\''+escAttr(m.display_name||'')+'\',\''+escAttr(m.department||'')+'\',\''+escAttr(m.class_name||'')+'\',\''+escAttr(m.qq||'')+'\',\''+escAttr(m.phone||'')+'\');closeDetail();">✏️ 编辑</button> ':'')+
+            '<button class="btn btn-outline btn-sm" onclick="closeDetail()">关闭</button>';
+        document.getElementById('detailModal').classList.add('show');
+        document.body.style.overflow='hidden';
+    });
+}
+
+function editMemberCard(uid,name,dept,cls,qq,phone){
+    var newName=prompt('名称：',name||'');if(newName===null)return;newName=newName.trim();
+    var newDept=prompt('部门：',dept||'');if(newDept===null)return;newDept=newDept.trim();
+    var newClass=prompt('班级：',cls||'');if(newClass===null)return;newClass=newClass.trim();
+    var newQq=prompt('QQ：',qq||'');if(newQq===null)return;newQq=newQq.trim();
+    var newPhone=prompt('电话：',phone||'');if(newPhone===null)return;newPhone=newPhone.trim();
+    var updateData={};
+    if(newName!==(name||''))updateData.display_name=newName;
+    if(newDept!==(dept||''))updateData.department=newDept;
+    if(newClass!==(cls||''))updateData.class_name=newClass;
+    if(newQq!==(qq||''))updateData.qq=newQq;
+    if(newPhone!==(phone||''))updateData.phone=newPhone;
+    if(Object.keys(updateData).length===0){toast('未修改','err');return;}
+    supabase.from('profiles').update(updateData).eq('id',uid).then(function(r){
+        if(r.error){toast('更新失败: '+r.error.message,'err');return;}
+        toast('已更新 ✅','ok');
+        writeLog('编辑成员信息','profile',uid,JSON.stringify(updateData));
+        if(uid===currentUser.id){
+            if(updateData.display_name)currentUser.display_name=updateData.display_name;
+            if(updateData.department)currentUser.department=updateData.department;
+            document.getElementById('userName').textContent=currentUser.display_name||currentUser.department||'用户';
+        }
+        loadWall();
+    });
+}
+
+function exportWall(){
+    supabase.from('profiles').select('display_name,department,class_name,qq,phone').order('department').then(function(r){
+        var data=r.data||[];
+        var txt='姓名,部门,班级,QQ,电话\n';
+        for(var i=0;i<data.length;i++){
+            var d=data[i];
+            txt+='"'+(d.display_name||'')+'","'+(d.department||'')+'","'+(d.class_name||'')+'","'+(d.qq||'')+'","'+(d.phone||'')+'"\n';
+        }
+        var blob=new Blob(['\uFEFF'+txt],{type:'text/plain;charset=utf-8'});
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement('a');a.href=url;a.download='通讯录_'+new Date().toISOString().substring(0,10)+'.csv';
+        document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+        toast('导出成功','ok');
+    });
+}
+
+// ==========================================
+// 9. 签到（完整版）
+// ==========================================
+var checkinYear, checkinMonth;
+
+function buildCheckin(container){
+    var now=new Date();
+    checkinYear=now.getFullYear();
+    checkinMonth=now.getMonth()+1;
+    var html='<div class="card"><div class="card-header"><span>✅ 每日签到</span>';
+    html+='<div style="display:flex;align-items:center;gap:8px;font-size:.9rem;">';
+    html+='<button class="btn btn-xs btn-outline" onclick="changeCheckinMonth(-1)">◀</button>';
+    html+='<span style="font-weight:700;" id="calTitle"></span>';
+    html+='<button class="btn btn-xs btn-outline" onclick="changeCheckinMonth(1)">▶</button>';
+    html+='</div></div>';
+    html+='<div style="display:flex;gap:14px;flex-wrap:wrap;padding:18px;">';
+    html+='<div style="flex:1;min-width:280px;">';
+    html+='<div style="text-align:center;margin-bottom:14px;" id="checkinTop">';
+    html+='<div style="font-size:2.5rem;" id="checkinEmoji">📅</div>';
+    html+='<div style="font-size:1.1rem;font-weight:700;" id="checkinStatus">加载中...</div>';
+    html+='<div style="font-size:.85rem;color:var(--muted);" id="checkinStreak">加载中...</div>';
+    html+='</div>';
+    html+='<button class="btn btn-green" id="checkinBtn" onclick="doCheckin()" style="margin:0 auto;display:block;">✅ 签到</button>';
+    html+='<div id="calGrid" style="margin-top:16px;display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;"></div>';
+    html+='</div>';
+    html+='<div style="flex:0 0 220px;min-width:200px;">';
+    html+='<div style="font-weight:600;font-size:.85rem;margin-bottom:8px;">📊 签到统计</div>';
+    html+='<div style="font-size:.8rem;color:var(--muted);" id="checkinStats">加载中...</div>';
+    html+='<div style="font-weight:600;font-size:.85rem;margin-top:14px;margin-bottom:8px;">🏆 今日签到榜</div>';
+    html+='<div style="font-size:.78rem;" id="checkinRanking">加载中...</div>';
+    html+='<div style="font-weight:600;font-size:.85rem;margin-top:14px;margin-bottom:8px;">📈 本周签到趋势</div>';
+    html+='<div style="font-size:.78rem;" id="checkinWeekly">加载中...</div>';
+    html+='</div></div></div>';
+    container.innerHTML=html;
+    loadCheckinAll();
+}
+
+function changeCheckinMonth(delta){
+    checkinMonth+=delta;
+    if(checkinMonth<1){checkinMonth=12;checkinYear--;}
+    if(checkinMonth>12){checkinMonth=1;checkinYear++;}
+    loadCheckinAll();
+}
+
+function loadCheckinAll(){
+    var today=new Date().toISOString().substring(0,10);
+    document.getElementById('calTitle').textContent=checkinYear+'年 '+checkinMonth+'月';
+
+    // 签到状态
+    supabase.from('checkins').select('*').eq('user_id',currentUser.id).eq('check_date',today).single().then(function(r){
+        document.getElementById('checkinEmoji').textContent=r.data?'✅':'📅';
+        document.getElementById('checkinStatus').textContent=r.data?'今日已签到 ✓':'今天还没签到';
+        var btn=document.getElementById('checkinBtn');
+        if(r.data){btn.textContent='✅ 已签到';btn.className='btn btn-outline';btn.disabled=true;}
+        else{btn.textContent='✅ 签到';btn.className='btn btn-green';btn.disabled=false;}
+    });
+
+    // 连续天数
+    supabase.from('checkins').select('check_date').eq('user_id',currentUser.id).order('check_date',{ascending:false}).limit(60).then(function(r){
+        var data=r.data||[];
+        var streak=0;
+        var d=new Date();
+        for(var i=0;i<60;i++){
+            var ds=d.toISOString().substring(0,10);
+            var found=data.some(function(x){return x.check_date===ds;});
+            if(found){streak++;d.setDate(d.getDate()-1);}
+            else{if(i===0){d.setDate(d.getDate()-1);continue;}else break;}
+        }
+        document.getElementById('checkinStreak').textContent='🔥 连续签到 '+streak+' 天';
+    });
+
+    // 月历
+    renderCalendar();
+
+    // 统计
+    loadCheckinStats();
+
+    // 排行榜
+    loadCheckinRanking();
+
+    // 周趋势
+    loadCheckinWeekly();
+}
+
+function renderCalendar(){
+    var grid=document.getElementById('calGrid');
+    if(!grid)return;
+    var days=['日','一','二','三','四','五','六'];
+    var h='';
+    for(var i=0;i<7;i++)h+='<div style="font-size:.7rem;font-weight:600;color:var(--muted);">'+days[i]+'</div>';
+    var firstDay=new Date(checkinYear,checkinMonth-1,1).getDay();
+    var totalDays=new Date(checkinYear,checkinMonth,0).getDate();
+    var todayStr=new Date().toISOString().substring(0,10);
+
+    // 先填充空白格和未标记的日期（骨架）
+    for(var d=0;d<firstDay;d++)h+='<div></div>';
+    for(var day=1;day<=totalDays;day++){
+        var ds=checkinYear+'-'+String(checkinMonth).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+        var isToday=ds===todayStr;
+        h+='<div style="padding:6px 2px;border-radius:6px;font-size:.75rem;'+(isToday?'border:2px solid #2563eb;':'')+'">'+day+'</div>';
+    }
+    grid.innerHTML=h;
+
+    // 异步查询后更新标记
+    supabase.from('checkins').select('check_date').eq('user_id',currentUser.id).gte('check_date',checkinYear+'-'+String(checkinMonth).padStart(2,'0')+'-01').lte('check_date',checkinYear+'-'+String(checkinMonth).padStart(2,'0')+'-'+totalDays).then(function(r){
+        var checkedDates=(r.data||[]).map(function(x){return x.check_date;});
+        // 只更新已签到的格子背景色
+        var cells=grid.querySelectorAll('div');
+        // 跳过前 7 个（星期标题）+ firstDay 个空白格
+        var offset=7+firstDay;
+        for(var day=1;day<=totalDays;day++){
+            var ds=checkinYear+'-'+String(checkinMonth).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+            var idx=offset+day-1;
+            if(idx<cells.length && checkedDates.indexOf(ds)!==-1){
+                cells[idx].style.background='#d1fae5';
+                cells[idx].style.fontWeight='700';
+            }
+        }
+    });
+}
+
+function loadCheckinStats(){
+    var monthStart=checkinYear+'-'+String(checkinMonth).padStart(2,'0')+'-01';
+    var totalDays=new Date(checkinYear,checkinMonth,0).getDate();
+    var monthEnd=checkinYear+'-'+String(checkinMonth).padStart(2,'0')+'-'+totalDays;
+    supabase.from('checkins').select('id',{count:'exact'}).eq('user_id',currentUser.id).gte('check_date',monthStart).lte('check_date',monthEnd).then(function(r){
+        var monthCount=r.count||0;
+        supabase.from('checkins').select('id',{count:'exact'}).eq('user_id',currentUser.id).then(function(r2){
+            var totalCount=r2.count||0;
+            document.getElementById('checkinStats').innerHTML='本月签到：<b>'+monthCount+'</b> 天<br>累计签到：<b>'+totalCount+'</b> 天<br>本月出勤率：<b>'+(totalDays>0?(monthCount/totalDays*100).toFixed(1):0)+'%</b>';
+        });
+    });
+}
+
+function loadCheckinRanking(){
+    var today=new Date().toISOString().substring(0,10);
+    supabase.from('checkins').select('user_id,created_at').eq('check_date',today).order('created_at').limit(20).then(function(r){
+        var el=document.getElementById('checkinRanking');
+        if(!el)return;
+        var data=r.data||[];
+        if(data.length===0){el.innerHTML='<span style="color:var(--muted);">还没有人签到</span>';return;}
+
+        // 先获取所有用户 ID，批量查名字
+        var userIds=[];
+        for(var i=0;i<Math.min(data.length,10);i++){
+            userIds.push(data[i].user_id);
+        }
+
+        // 一次性查询所有用户名字
+        supabase.from('profiles').select('id,display_name').in('id',userIds).then(function(r2){
+            // 建映射表
+            var nameMap={};
+            var profiles=r2.data||[];
+            for(var j=0;j<profiles.length;j++){
+                nameMap[profiles[j].id]=profiles[j].display_name||'未知';
+            }
+
+            var medals=['🥇','🥈','🥉'];
+            var h='';
+            for(var k=0;k<Math.min(data.length,10);k++){
+                var prefix=k<3?medals[k]+' ':(k+1)+'. ';
+                var name=nameMap[data[k].user_id]||'...';
+                h+='<div style="padding:3px 0;border-bottom:1px solid #f1f5f9;">'+prefix+'<span style="color:#2563eb;cursor:pointer;" onclick="showMemberCard(\''+data[k].user_id+'\')">'+escHtml(name)+'</span> <span style="font-size:.7rem;color:var(--muted);">'+(data[k].created_at||'').substring(11,16)+'</span></div>';
+            }
+            el.innerHTML=h;
+        });
+    });
+}
+
+function loadCheckinWeekly(){
+    var el=document.getElementById('checkinWeekly');
+    if(!el)return;
+    var labels=['周一','周二','周三','周四','周五','周六','周日'];
+    var counts=[0,0,0,0,0,0,0];
+    var now=new Date();
+    var dayOfWeek=now.getDay();
+    var monday=new Date(now);
+    monday.setDate(now.getDate()-(dayOfWeek===0?6:dayOfWeek-1));
+    monday.setHours(0,0,0,0);
+
+    var promises=[];
+    for(var i=0;i<7;i++){
+        var d=new Date(monday);
+        d.setDate(monday.getDate()+i);
+        var ds=d.toISOString().substring(0,10);
+        (function(idx,ds){
+            promises.push(supabase.from('checkins').select('id',{count:'exact'}).eq('check_date',ds));
+        })(i,ds);
+    }
+    Promise.all(promises).then(function(results){
+        for(var i=0;i<results.length;i++){counts[i]=results[i].count||0;}
+        var maxCount=Math.max.apply(null,counts)||1;
+        var h='';
+        for(var j=0;j<7;j++){
+            var barW=Math.max(counts[j]/maxCount*100,2);
+            var isToday=j===(dayOfWeek===0?6:dayOfWeek-1);
+            h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:.73rem;">';
+            h+='<span style="width:32px;text-align:right;'+(isToday?'font-weight:700;':'')+'">'+labels[j]+'</span>';
+            h+='<div style="flex:1;background:#e5e7eb;border-radius:4px;height:16px;"><div style="width:'+barW+'%;height:100%;background:'+(isToday?'#2563eb':'#10b981')+';border-radius:4px;min-width:2px;"></div></div>';
+            h+='<span style="width:20px;">'+counts[j]+'</span></div>';
+        }
+        el.innerHTML=h;
+    });
+}
+
+function doCheckin(){
+    var today=new Date().toISOString().substring(0,10);
+    var btn=document.getElementById('checkinBtn');
+    btn.disabled=true;btn.textContent='签到中...';
+    supabase.from('checkins').insert([{user_id:currentUser.id,check_date:today,is_manual:false}]).then(function(r){
+        if(r.error){
+            if(r.error.message.indexOf('duplicate')!==-1)toast('今天已经签到过了','err');
+            else toast('签到失败: '+r.error.message,'err');
+            loadCheckinAll();
+            return;
+        }
+        toast('签到成功 ✅','ok');
+        writeLog('签到','checkin',currentUser.id,'');
+        loadCheckinAll();
+    });
+}
+        function heartbeat(){
+    if(!currentUser || !currentUser.id) return;
+    supabase.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', currentUser.id).then(function(){});
+}
+setInterval(heartbeat, 300000);
+heartbeat();
     </script>
 </body>
 </html>
