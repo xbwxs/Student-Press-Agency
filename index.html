@@ -505,5 +505,26 @@ document.getElementById('darkToggle').addEventListener('click', function(e){
             }, 1600 / steps);
         }
     </script>
+<!-- 放在 index.html 的 </body> 前 -->
+<script>
+(function() {
+    var KEY = 'last_keepalive';
+    var FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
+    var last = localStorage.getItem(KEY);
+    var now = Date.now();
+
+    // 距离上次保活不足 4 天则跳过，减少无效请求
+    if (last && (now - parseInt(last)) < FOUR_DAYS) return;
+
+    // 初始化 Supabase（与后台共用凭据）
+    var sb = window.supabase.createClient(
+        'https://dhwgxuvkwjqkwgetezun.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2d4dXZrd2pxa3dnZXRlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTU4NDksImV4cCI6MjA5ODc3MTg0OX0.xbeSSfXk6_mdKN-9B1B0MByiFrXIntcNDlJS1XAnlrs'
+    );
+    sb.from('settings').select('key').limit(1).then(function() {
+        localStorage.setItem(KEY, String(now));
+    });
+})();
+</script>
 </body>
 </html>
