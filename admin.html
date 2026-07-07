@@ -1209,7 +1209,7 @@ function showMemberCard(uid){
         var isOnline=false;
         if(m.last_seen){
             var last=new Date(m.last_seen);
-            if((now-last)/60000<5)isOnline=true;
+            if((now-last)/60000<15)isOnline=true;
         }
         var h='<div style="text-align:center;margin-bottom:16px;">';
         h+='<div style="font-size:3rem;">'+(isOnline?'🟢':'🔘')+'</div>';
@@ -1497,7 +1497,7 @@ function doCheckin(){
     if(!currentUser || !currentUser.id) return;
     supabase.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', currentUser.id).then(function(){});
 }
-setInterval(heartbeat, 300000);
+setInterval(heartbeat, 10000);
 heartbeat();
     </script>
 </body>
