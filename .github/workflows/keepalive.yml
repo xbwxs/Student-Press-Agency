@@ -1,0 +1,28 @@
+name: Supabase 保活
+
+on:
+  schedule:
+    # 每 4 天执行一次（UTC 时间凌晨 3 点）
+    - cron: '0 3 */4 * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Ping Supabase
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2d4dXZrd2pxa3dnZXRlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTU4NDksImV4cCI6MjA5ODc3MTg0OX0.xbeSSfXk6_mdKN-9B1B0MByiFrXIntcNDlJS1XAnlrs" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2d4dXZrd2pxa3dnZXRlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTU4NDksImV4cCI6MjA5ODc3MTg0OX0.xbeSSfXk6_mdKN-9B1B0MByiFrXIntcNDlJS1XAnlrs" \
+            "https://dhwgxuvkwjqkwgetezun.supabase.co/rest/v1/settings?select=key&limit=1")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ 保活成功 | $(date -u '+%Y-%m-%d %H:%M UTC')"
+          else
+            echo "⚠️  响应码: $HTTP_CODE"
+            echo "返回: $BODY"
+          fi
