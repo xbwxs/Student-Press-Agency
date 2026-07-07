@@ -257,6 +257,7 @@
     </div>
 
     <script>
+     var getLocalDate = function(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
         var supabase = window.supabase.createClient(
             'https://dhwgxuvkwjqkwgetezun.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2d4dXZrd2pxa3dnZXRlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTU4NDksImV4cCI6MjA5ODc3MTg0OX0.xbeSSfXk6_mdKN-9B1B0MByiFrXIntcNDlJS1XAnlrs'
@@ -306,7 +307,7 @@
 }
 
 function checkCheckinReminder(){
-    var today=new Date().toISOString().substring(0,10);
+    var today=getLocalDate();
     supabase.from('checkins').select('id').eq('user_id',currentUser.id).eq('check_date',today).single().then(function(r){
         if(!r.data){toast('📅 今天还没签到哦，快去签到吧！','err');}
     });
@@ -667,7 +668,7 @@ case'checkin':buildCheckin(c);break;
             var csv='\uFEFF'+rows.join('\n');
             var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
             var url=URL.createObjectURL(blob);
-            var a=document.createElement('a');a.href=url;a.download='招新数据_'+new Date().toISOString().substring(0,10)+'.csv';
+            var a=document.createElement('a');a.href=url;a.download='招新数据_'+getLocalDate()+'.csv';
             document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('导出成功','ok');
         }
 
@@ -1266,7 +1267,7 @@ function exportWall(){
         }
         var blob=new Blob(['\uFEFF'+txt],{type:'text/plain;charset=utf-8'});
         var url=URL.createObjectURL(blob);
-        var a=document.createElement('a');a.href=url;a.download='通讯录_'+new Date().toISOString().substring(0,10)+'.csv';
+        var a=document.createElement('a');a.href=url;a.download='通讯录_'+getLocalDate()+'.csv';
         document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
         toast('导出成功','ok');
     });
@@ -1317,7 +1318,7 @@ function changeCheckinMonth(delta){
 }
 
 function loadCheckinAll(){
-    var today=new Date().toISOString().substring(0,10);
+    var today=getLocalDate();
     document.getElementById('calTitle').textContent=checkinYear+'年 '+checkinMonth+'月';
 
     // 签到状态
@@ -1335,7 +1336,7 @@ function loadCheckinAll(){
         var streak=0;
         var d=new Date();
         for(var i=0;i<60;i++){
-            var ds=d.toISOString().substring(0,10);
+            var ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
             var found=data.some(function(x){return x.check_date===ds;});
             if(found){streak++;d.setDate(d.getDate()-1);}
             else{if(i===0){d.setDate(d.getDate()-1);continue;}else break;}
@@ -1364,7 +1365,7 @@ function renderCalendar(){
     for(var i=0;i<7;i++)h+='<div style="font-size:.7rem;font-weight:600;color:var(--muted);">'+days[i]+'</div>';
     var firstDay=new Date(checkinYear,checkinMonth-1,1).getDay();
     var totalDays=new Date(checkinYear,checkinMonth,0).getDate();
-    var todayStr=new Date().toISOString().substring(0,10);
+    var todayStr=getLocalDate();
 
     // 先填充空白格和未标记的日期（骨架）
     for(var d=0;d<firstDay;d++)h+='<div></div>';
@@ -1407,7 +1408,7 @@ function loadCheckinStats(){
 }
 
 function loadCheckinRanking(){
-    var today=new Date().toISOString().substring(0,10);
+    var today=getLocalDate();
     supabase.from('checkins').select('user_id,created_at').eq('check_date',today).order('created_at').limit(20).then(function(r){
         var el=document.getElementById('checkinRanking');
         if(!el)return;
@@ -1434,7 +1435,7 @@ function loadCheckinRanking(){
             for(var k=0;k<Math.min(data.length,10);k++){
                 var prefix=k<3?medals[k]+' ':(k+1)+'. ';
                 var name=nameMap[data[k].user_id]||'...';
-                h+='<div style="padding:3px 0;border-bottom:1px solid #f1f5f9;">'+prefix+'<span style="color:#2563eb;cursor:pointer;" onclick="showMemberCard(\''+data[k].user_id+'\')">'+escHtml(name)+'</span> <span style="font-size:.7rem;color:var(--muted);">'+(data[k].created_at||'').substring(11,16)+'</span></div>';
+                h+='<div style="padding:3px 0;border-bottom:1px solid #f1f5f9;">'+prefix+'<span style="color:#2563eb;cursor:pointer;" onclick="showMemberCard(\''+data[k].user_id+'\')">'+escHtml(name)+'</span> <span style="font-size:.7rem;color:var(--muted);">'+(function(ts){ if(!ts) return '--:--'; var t = new Date(ts); return String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0'); })(data[k].created_at)+'</span></div>';
             }
             el.innerHTML=h;
         });
@@ -1456,7 +1457,7 @@ function loadCheckinWeekly(){
     for(var i=0;i<7;i++){
         var d=new Date(monday);
         d.setDate(monday.getDate()+i);
-        var ds=d.toISOString().substring(0,10);
+        var ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
         (function(idx,ds){
             promises.push(supabase.from('checkins').select('id',{count:'exact'}).eq('check_date',ds));
         })(i,ds);
@@ -1478,7 +1479,7 @@ function loadCheckinWeekly(){
 }
 
 function doCheckin(){
-    var today=new Date().toISOString().substring(0,10);
+    var today=getLocalDate();
     var btn=document.getElementById('checkinBtn');
     btn.disabled=true;btn.textContent='签到中...';
     supabase.from('checkins').insert([{user_id:currentUser.id,check_date:today,is_manual:false}]).then(function(r){
